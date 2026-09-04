@@ -13,10 +13,18 @@ import { getAgentSignal } from "@era/signals";
 
 const app = new Hono();
 
+const defaultOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const configuredOrigins = process.env.WEB_ORIGIN?.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = configuredOrigins?.length
+  ? configuredOrigins
+  : defaultOrigins;
+
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: allowedOrigins,
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
   }),
