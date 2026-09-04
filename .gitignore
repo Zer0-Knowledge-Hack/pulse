@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+.turbo/
+.output/
+.vinxi/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+.studio/
+
+# Local SDD / skill-registry cache
+.atl/
+
+# Logs and OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
