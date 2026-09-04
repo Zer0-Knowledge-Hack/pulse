@@ -1,5 +1,7 @@
-# See openspec/specs/team/spec.md — replace handles after GitHub usernames exist.
-# Until then these paths document ownership; reviews still follow CONTRIBUTING.md.
+# Path ownership — see openspec/specs/team/spec.md and docs/sprint.md.
+# Write access today: @TOMOKI977 @moises-cisneros @fercodes @Pericena @XxHugheadxX
+# Replace @hackathonera/* with the GitHub handle that claimed that stream.
+# Reviews still follow CONTRIBUTING.md. Do not push to main.
 
 packages/domain/ @hackathonera/platform
 

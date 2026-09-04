@@ -7,7 +7,7 @@ This repository uses OpenSpec as the shareable source of truth for architecture 
 1. Read [`openspec/config.yaml`](openspec/config.yaml) for stack, persistence mode, and phase rules.
 2. Read [`openspec/specs/`](openspec/specs/) before changing product, stack, team topology, commerce rails, or brand.
 3. Record new decisions with OpenSpec (change folder → archive into main specs). Mirror to Engram using the `topic_key` in [`docs/DECISIONS.md`](docs/DECISIONS.md).
-4. Follow [`CONTRIBUTING.md`](CONTRIBUTING.md) for path ownership and PR shape.
+4. Follow [`CONTRIBUTING.md`](CONTRIBUTING.md) for path ownership and PR shape. Never commit or push to `main`; open a topic-branch PR. Sprint plan: [`docs/sprint.md`](docs/sprint.md).
 5. Follow [`docs/brand.md`](docs/brand.md) and the [BNB Chain brand guidelines](https://www.bnbchain.org/en/brand-guidelines) for colour, wording, and logo rules.
 
 ## Hard rules

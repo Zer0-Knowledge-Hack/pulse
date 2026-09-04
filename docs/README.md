@@ -6,14 +6,16 @@ Human index for this repo. Architecture and behavior live in OpenSpec. This fold
 
 1. Locked behavior: [`openspec/specs/`](../openspec/specs/)
 2. How to record a decision: [DECISIONS.md](DECISIONS.md)
-3. How to send a PR: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
-4. Hackathon brief: [BNB Chain Smart Money Era](https://www.bnbchain.org/en/hackathons/smart-money-era)
-5. Visual identity: [brand.md](brand.md) — official [BNB Chain brand guidelines](https://www.bnbchain.org/en/brand-guidelines)
+3. How to send a PR: [`CONTRIBUTING.md`](../CONTRIBUTING.md) — topic branches only, never push `main`
+4. Monday 7 Sep checkpoint: [sprint.md](sprint.md)
+5. Hackathon brief: [BNB Chain Smart Money Era](https://www.bnbchain.org/en/hackathons/smart-money-era)
+6. Visual identity: [brand.md](brand.md) — official [BNB Chain brand guidelines](https://www.bnbchain.org/en/brand-guidelines)
 
 ## Details
 
 | Doc | Role |
 |-----|------|
+| [sprint.md](sprint.md) | Monday 7 Sep bar, who does what, git is PR-only |
 | [DECISIONS.md](DECISIONS.md) | Process: OpenSpec ↔ Engram, topic keys, checklist |
 | [`openspec/config.yaml`](../openspec/config.yaml) | SDD mode, stack context, phase rules |
 | [`openspec/specs/product/spec.md`](../openspec/specs/product/spec.md) | What we ship and how we win |
