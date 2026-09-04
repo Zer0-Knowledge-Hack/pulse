@@ -1,0 +1,26 @@
+# See openspec/specs/team/spec.md — replace handles after GitHub usernames exist.
+# Until then these paths document ownership; reviews still follow CONTRIBUTING.md.
+
+packages/domain/ @hackathonera/platform
+
+apps/web/src/components/ui/ @hackathonera/platform
+apps/web/src/components/brand/ @hackathonera/platform
+apps/web/public/brand/ @hackathonera/platform
+apps/web/src/routes/__root.tsx @hackathonera/platform
+apps/web/src/main.tsx @hackathonera/platform
+apps/web/src/providers/ @hackathonera/platform
+
+apps/api/ @hackathonera/catalog
+packages/indexer/ @hackathonera/catalog
+apps/web/src/features/catalog/ @hackathonera/catalog
+apps/web/src/routes/browse/ @hackathonera/catalog
+
+packages/commerce/ @hackathonera/commerce
+apps/web/src/features/hire/ @hackathonera/commerce
+apps/web/src/routes/hire/ @hackathonera/commerce
+
+agents/ @hackathonera/agents
+
+packages/signals/ @hackathonera/signal
+apps/web/src/features/signals/ @hackathonera/signal
+evidence/ @hackathonera/signal

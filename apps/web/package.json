@@ -1,0 +1,40 @@
+{
+  "name": "@era/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "brand:studio": "remotion studio remotion/index.ts",
+    "brand:export": "node scripts/export-pulse-brand.mjs"
+  },
+  "dependencies": {
+    "@era/domain": "workspace:*",
+    "@rainbow-me/rainbowkit": "^2.2.8",
+    "@tanstack/react-query": "^5.85.5",
+    "@tanstack/react-router": "^1.131.27",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.542.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1",
+    "viem": "^2.36.0",
+    "wagmi": "^2.16.9"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.520",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "png-to-ico": "^3.0.2",
+    "remotion": "^4.0.520",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}

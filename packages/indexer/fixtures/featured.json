@@ -1,0 +1,222 @@
+{
+  "agents": [
+    {
+      "id": "range-keeper",
+      "chainId": 97,
+      "erc8004TokenId": "80041",
+      "category": "rebalancing",
+      "name": "Range Keeper",
+      "description": "Keeps Pancake V3 BNB/USDT liquidity in range and resets when price walks the band.",
+      "owner": "0x1111111111111111111111111111111111111111",
+      "endpoints": {
+        "a2a": "https://agents.local/range-keeper/a2a",
+        "mcp": "https://agents.local/range-keeper/mcp"
+      },
+      "commerce": {
+        "erc8183Provider": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-12T10:00:00.000Z",
+      "signal": {
+        "category": "rebalancing",
+        "inRangePct": 92.4,
+        "feesUsd": 418.2,
+        "impermanentLossUsd": 36.1,
+        "lastRebalanceAt": "2026-09-03T18:22:00.000Z"
+      }
+    },
+    {
+      "id": "lp-sentinel",
+      "chainId": 97,
+      "erc8004TokenId": "80042",
+      "category": "rebalancing",
+      "name": "LP Sentinel",
+      "description": "Widens and tightens Cake/BNB ranges from fee/volume, never from a vibe prompt.",
+      "owner": "0x1111111111111111111111111111111111111112",
+      "endpoints": {
+        "a2a": "https://agents.local/lp-sentinel/a2a",
+        "mcp": null
+      },
+      "commerce": {
+        "erc8183Provider": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-14T10:00:00.000Z",
+      "signal": {
+        "category": "rebalancing",
+        "inRangePct": 81.0,
+        "feesUsd": 209.7,
+        "impermanentLossUsd": 54.8,
+        "lastRebalanceAt": "2026-09-03T11:04:00.000Z"
+      }
+    },
+    {
+      "id": "grid-runner",
+      "chainId": 97,
+      "erc8004TokenId": "80043",
+      "category": "grid_trading",
+      "name": "Grid Runner",
+      "description": "Places a 12-level grid on BNB/USDT and reports fill rate plus realized PnL for the window.",
+      "owner": "0x2222222222222222222222222222222222222221",
+      "endpoints": {
+        "a2a": "https://agents.local/grid-runner/a2a",
+        "mcp": "https://agents.local/grid-runner/mcp"
+      },
+      "commerce": {
+        "erc8183Provider": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-18T10:00:00.000Z",
+      "signal": {
+        "category": "grid_trading",
+        "lowerBound": 540,
+        "upperBound": 720,
+        "fillRatePct": 67.5,
+        "realizedPnlUsd": 128.4,
+        "windowHours": 168
+      }
+    },
+    {
+      "id": "band-bot",
+      "chainId": 97,
+      "erc8004TokenId": "80044",
+      "category": "grid_trading",
+      "name": "Band Bot",
+      "description": "Tighter grid on Cake/USDT with a hard loss cap encoded in the session spend limit.",
+      "owner": "0x2222222222222222222222222222222222222222",
+      "endpoints": {
+        "a2a": null,
+        "mcp": "https://agents.local/band-bot/mcp"
+      },
+      "commerce": {
+        "erc8183Provider": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "signal": {
+        "category": "grid_trading",
+        "lowerBound": 1.72,
+        "upperBound": 2.45,
+        "fillRatePct": 41.2,
+        "realizedPnlUsd": -12.6,
+        "windowHours": 72
+      }
+    },
+    {
+      "id": "yield-router",
+      "chainId": 97,
+      "erc8004TokenId": "80045",
+      "category": "yield",
+      "name": "Yield Router",
+      "description": "Routes idle $U across Lista, Venus, and Cake staking. Publishes venue, net APR, last hop.",
+      "owner": "0x3333333333333333333333333333333333333331",
+      "endpoints": {
+        "a2a": "https://agents.local/yield-router/a2a",
+        "mcp": "https://agents.local/yield-router/mcp"
+      },
+      "commerce": {
+        "erc8183Provider": "0xcccccccccccccccccccccccccccccccccccccccc",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-16T10:00:00.000Z",
+      "signal": {
+        "category": "yield",
+        "venue": "Lista liquid staking",
+        "netAprPct": 5.84,
+        "allocationPct": 70,
+        "lastHopAt": "2026-09-02T09:10:00.000Z"
+      }
+    },
+    {
+      "id": "apr-hopper",
+      "chainId": 97,
+      "erc8004TokenId": "80046",
+      "category": "yield",
+      "name": "APR Hopper",
+      "description": "Compares Venus supply APR vs Pancake stable farms and moves only inside a spend cap.",
+      "owner": "0x3333333333333333333333333333333333333332",
+      "endpoints": {
+        "a2a": "https://agents.local/apr-hopper/a2a",
+        "mcp": null
+      },
+      "commerce": {
+        "erc8183Provider": "0xcccccccccccccccccccccccccccccccccccccccd",
+        "x402": true
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-22T10:00:00.000Z",
+      "signal": {
+        "category": "yield",
+        "venue": "Venus USDT",
+        "netAprPct": 4.11,
+        "allocationPct": 100,
+        "lastHopAt": "2026-09-03T21:40:00.000Z"
+      }
+    },
+    {
+      "id": "hf-watch",
+      "chainId": 97,
+      "erc8004TokenId": "80047",
+      "category": "health_factor",
+      "name": "HF Watch",
+      "description": "Tracks Venus BNB collateral health factor and recommends repay before the cliff.",
+      "owner": "0x4444444444444444444444444444444444444441",
+      "endpoints": {
+        "a2a": "https://agents.local/hf-watch/a2a",
+        "mcp": "https://agents.local/hf-watch/mcp"
+      },
+      "commerce": {
+        "erc8183Provider": "0xdddddddddddddddddddddddddddddddddddddddd",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-10T10:00:00.000Z",
+      "signal": {
+        "category": "health_factor",
+        "healthFactor": 1.37,
+        "liquidationPrice": 412.5,
+        "protocol": "Venus",
+        "lastActionAt": "2026-09-03T16:05:00.000Z"
+      }
+    },
+    {
+      "id": "liq-guard",
+      "chainId": 97,
+      "erc8004TokenId": "80048",
+      "category": "health_factor",
+      "name": "Liq Guard",
+      "description": "Aave-style HF monitor with a repay skill scoped to a session allowlist.",
+      "owner": "0x4444444444444444444444444444444444444442",
+      "endpoints": {
+        "a2a": "https://agents.local/liq-guard/a2a",
+        "mcp": null
+      },
+      "commerce": {
+        "erc8183Provider": "0xddddddddddddddddddddddddddddddddddddddde",
+        "x402": false
+      },
+      "featured": true,
+      "live": true,
+      "createdAt": "2026-08-24T10:00:00.000Z",
+      "signal": {
+        "category": "health_factor",
+        "healthFactor": 1.92,
+        "liquidationPrice": 288.0,
+        "protocol": "Lista / Venus",
+        "lastActionAt": "2026-09-01T08:00:00.000Z"
+      }
+    }
+  ]
+}

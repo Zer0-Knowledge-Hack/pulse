@@ -8,6 +8,7 @@ build/
 .turbo/
 .output/
 .vinxi/
+out/
 
 # Env and secrets
 .env
