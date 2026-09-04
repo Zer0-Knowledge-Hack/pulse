@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-ink: #0b0e11;
+  --color-ink-2: #15181d;
+  --color-line: #2a2e35;
+  --color-paper: #ffffff;
+  --color-muted: #9aa0a6;
+  --color-accent: #f0b90b;
+  --color-danger: #d45b4a;
+  --color-ok: #6fbf8a;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+}
+
+.pulse-svg {
+  display: block;
+  height: 2.35rem;
+  width: auto;
+  overflow: visible;
+}
+
+.pulse-specimen .pulse-svg,
+.pulse-crt .pulse-svg {
+  height: 6rem;
+}
+
+.pulse-crt {
+  background-image:
+    linear-gradient(rgba(240, 185, 11, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240, 185, 11, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 1.75rem 1.25rem;
+}

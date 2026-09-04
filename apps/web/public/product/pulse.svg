@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 258 68" fill="none" role="img" aria-label="pulse">
+  <defs>
+    <filter id="pulse-bloom" x="-20%" y="-40%" width="140%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.35" result="glow"/>
+      <feColorMatrix in="glow" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.45 0" result="soft"/>
+      <feMerge>
+        <feMergeNode in="soft"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#pulse-bloom)">
+    <path d="M40 26c8 0 12 24 28 24s20-38 34-38 20 38 36 38 16-22 30-22" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.28" transform="translate(0 3)"/>
+    <path d="M16 8v52" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="28" cy="24" r="12.5" fill="#F0B90B"/>
+    <path d="M40 26c8 0 12 24 28 24s20-38 34-38 20 38 36 38 16-22 30-22" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="206" cy="36" r="16" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round" pathLength="100" stroke-dasharray="84 16" stroke-dashoffset="10"/>
+    <path d="M190 36h20" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="236" cy="48" r="3.6" fill="#F0B90B" opacity="0.75"/>
+  </g>
+</svg>

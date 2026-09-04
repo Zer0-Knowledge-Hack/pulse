@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 68" fill="none" role="img" aria-label="pulse">
+  <defs>
+    <filter id="pulse-bloom-mark" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.35" result="glow"/>
+      <feColorMatrix in="glow" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.45 0" result="soft"/>
+      <feMerge>
+        <feMergeNode in="soft"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#pulse-bloom-mark)">
+    <circle cx="28" cy="27" r="12.5" fill="#F0B90B" opacity="0.28"/>
+    <path d="M16 8v52" stroke="#F0B90B" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="28" cy="24" r="12.5" fill="#F0B90B"/>
+  </g>
+</svg>
