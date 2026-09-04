@@ -1,0 +1,48 @@
+schema: spec-driven
+persistence: hybrid
+strict_tdd: false
+
+context: |
+  Hackathon marketplace for BNB Agent Studio (Smart Money Era, due 9 Sep 2026).
+  Web: Vite + React + TanStack Router + Tailwind/shadcn. API: Hono + Drizzle + Neon.
+  Buyer wallet: wagmi v2 + RainbowKit. Agent wallet: Altana. Hire: ERC-8183 in $U.
+  Five path-owned workstreams (P/C/H/A/S). English specs, docs, and comments.
+  Persistence: OpenSpec in git + Engram topic_keys in docs/DECISIONS.md.
+
+testing:
+  runner: none
+  planned: vitest
+  layers:
+    unit: planned
+    integration: planned
+    e2e: later
+  coverage_command: ""
+  lint: planned
+  typecheck: tsc --noEmit
+  format: planned
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Name the workstream owner and the directory tree
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Artifacts are English
+  design:
+    - Document architecture decisions with rationale
+    - Include sequence diagrams for hire and session-revoke flows
+  tasks:
+    - Group by workstream, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+    - Update docs/DECISIONS.md topic_key table when adding a new domain
