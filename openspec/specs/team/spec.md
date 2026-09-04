@@ -51,7 +51,9 @@ Catalog MUST render hire and signal as slots (`HireCTA`, `CategorySignal`) imple
 
 ### Requirement: Git topology
 
-After the Day-0 foundation PR, work MUST land as stacked squash PRs onto `main`. Feature-branch chains MUST NOT be the default. `main` MUST remain the nightly demo target.
+After the Day-0 foundation, work MUST land as stacked squash PRs onto `main`. Feature-branch chains between people MUST NOT be the default. `main` MUST remain the nightly demo target.
+
+Contributors MUST NOT commit on `main` and MUST NOT push commits directly to `main`. Every change MUST use a topic branch whose name matches `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)/[a-z0-9._-]+$` and MUST open a pull request targeting `main`. The GitHub repository MUST reject direct pushes to `main`.
 
 #### Scenario: Demo from main
 
@@ -59,3 +61,10 @@ After the Day-0 foundation PR, work MUST land as stacked squash PRs onto `main`.
 - WHEN Platform runs the demo script
 - THEN the URL is the production or preview of `main`
 - AND a failed step 5 (hire) becomes the next morning's only P0
+
+#### Scenario: No direct push
+
+- GIVEN a contributor has write access
+- WHEN they attempt `git push origin main`
+- THEN GitHub rejects the push
+- AND they open a PR from a topic branch instead

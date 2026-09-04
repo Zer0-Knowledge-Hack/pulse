@@ -41,10 +41,11 @@ agents/           Studio seed agents (A)
 
 ## Checklist
 
-- [ ] You know which workstream you own (`P` / `C` / `H` / `A` / `S`)
+- [ ] You know which workstream you own (`P` / `C` / `H` / `A` / `S`) — [sprint.md](docs/sprint.md)
+- [ ] You work on a topic branch and open a PR to `main` (never push `main`)
 - [ ] You will not edit `packages/domain` without Platform review
 - [ ] New decisions go through OpenSpec, then Engram (see [docs/DECISIONS.md](docs/DECISIONS.md))
 
 ## Next step
 
-[How to contribute](CONTRIBUTING.md) · [Decision log](docs/DECISIONS.md) · [pulse / BNB brand](docs/brand.md) · [License](LICENSE)
+[Monday 7 Sep plan](docs/sprint.md) · [How to contribute](CONTRIBUTING.md) · [Decision log](docs/DECISIONS.md) · [pulse / BNB brand](docs/brand.md) · [License](LICENSE)

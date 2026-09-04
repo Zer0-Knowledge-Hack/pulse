@@ -2,14 +2,29 @@
 
 This repo is a five-person hackathon build. Path ownership is the concurrency model: one workstream, one directory tree, stacked PRs to `main`. `main` must stay demoable.
 
+**Do not commit on `main`. Do not push to `main`.** Open a topic branch and a pull request. GitHub rejects direct pushes.
+
 English is the language of git, docs, specs, PRs, and code comments.
+
+Checkpoint through Monday 7 Sep: [`docs/sprint.md`](docs/sprint.md).
 
 ## Quick path
 
-1. Pick the workstream you own. Do not split a stream across two people.
-2. Branch from latest `main`: `feat/<short-behavior>` (see naming below).
-3. Ship one user-visible behavior per PR. Rebase, squash-merge.
+1. Claim the workstream you own ([`docs/sprint.md`](docs/sprint.md)). Do not split a stream across two people.
+2. Update local `main`, then branch: `feat/<short-behavior>` (see naming below).
+3. Ship one user-visible behavior per PR. Rebase. Squash-merge on GitHub.
 4. If you need a domain-type change, land that PR first, then yours.
+
+```bash
+git fetch origin
+git checkout main
+git pull origin main
+git checkout -b feat/short-behavior
+git push -u origin HEAD
+gh pr create --base main
+```
+
+Forbidden: `git push origin main`, force-push of `main`, and any commit made while checked out on `main`. If that already happened locally, `git checkout -b feat/your-work` and push the branch — never the `main` ref.
 
 ## Workstreams
 
@@ -25,7 +40,7 @@ Composition slots (do not inline the other stream's UI):
 
 - Catalog renders `<HireCTA agentId />` (implemented by Commerce).
 - Catalog renders `<CategorySignal agentId category />` (implemented by Signal).
-- Agents publish `featured.json`. Catalog ingests it.
+- Agents publish listing facts (tokenId, endpoint, category, chain). Catalog writes `packages/indexer/fixtures/featured.json`.
 
 Platform is the only person allowed to edit another tree, and only to unblock a red `main`.
 
@@ -35,13 +50,14 @@ Branch names: `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)/[
 
 | Rule | Why |
 |------|-----|
+| Topic branch + PR into `main` | `main` stays the demo; GitHub blocks direct pushes |
 | One behavior per PR | Revert without taking the demo down |
 | Tests and fixtures travel with the behavior | Preview and CI stay honest |
 | No PR that edits two workstream trees | Domain change = its own PR, Platform reviews |
 | Preview URL on `apps/web` PRs | Click the nightly demo script on the preview |
 | `size:exception` allowed for UI polish | Do not block ship on a 400-line budget; still split mixed concerns |
 
-This project uses **stacked PRs to `main`**, not a feature-branch chain. After the Day-0 foundation lands, slices merge independently.
+This project uses **stacked PRs to `main`**, not a feature-branch chain between people. After Day-0, slices merge independently. Self-merge is allowed only when CI is green and the diff stays in your tree. Prefer one review.
 
 ### PR review order
 
@@ -57,6 +73,7 @@ Do not bury architecture in chat. Record it in OpenSpec and mirror it to Engram.
 
 ## Checklist
 
+- [ ] You are not on `main` when you commit
 - [ ] Branch name matches the regex above
 - [ ] PR description states what to review first and what is out of scope
 - [ ] Fixtures or tests cover the new behavior
@@ -64,4 +81,4 @@ Do not bury architecture in chat. Record it in OpenSpec and mirror it to Engram.
 
 ## Next step
 
-Read the locked specs in [`openspec/specs/`](openspec/specs/) before writing code that fights them. Visual identity: [`docs/brand.md`](docs/brand.md) (pulse persist + [BNB Chain guidelines](https://www.bnbchain.org/en/brand-guidelines)).
+Read the locked specs in [`openspec/specs/`](openspec/specs/) before writing code that fights them. Visual identity: [`docs/brand.md`](docs/brand.md) (pulse persist + [BNB Chain guidelines](https://www.bnbchain.org/en/brand-guidelines)). Monday plan: [`docs/sprint.md`](docs/sprint.md).
