@@ -8,6 +8,7 @@ Human index for this repo. Architecture and behavior live in OpenSpec. This fold
 2. How to record a decision: [DECISIONS.md](DECISIONS.md)
 3. How to send a PR: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 4. Hackathon brief: [BNB Chain Smart Money Era](https://www.bnbchain.org/en/hackathons/smart-money-era)
+5. Visual identity: [brand.md](brand.md) — official [BNB Chain brand guidelines](https://www.bnbchain.org/en/brand-guidelines)
 
 ## Details
 
@@ -20,6 +21,8 @@ Human index for this repo. Architecture and behavior live in OpenSpec. This fold
 | [`openspec/specs/team/spec.md`](../openspec/specs/team/spec.md) | Five workstreams and path ownership |
 | [`openspec/specs/commerce/spec.md`](../openspec/specs/commerce/spec.md) | Hire rail, wallets, payments |
 | [`openspec/specs/documentation/spec.md`](../openspec/specs/documentation/spec.md) | How docs and memory stay aligned |
+| [brand.md](brand.md) | pulse persist mark + BNB Chain affiliation |
+| [`openspec/specs/brand/spec.md`](../openspec/specs/brand/spec.md) | Brand requirements |
 
 Do not copy specs into `docs/` as a second full tree. Link them. If a spec changes, this index stays valid.
 

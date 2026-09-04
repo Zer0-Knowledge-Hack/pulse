@@ -64,4 +64,4 @@ Do not bury architecture in chat. Record it in OpenSpec and mirror it to Engram.
 
 ## Next step
 
-Read the locked specs in [`openspec/specs/`](openspec/specs/) before writing code that fights them.
+Read the locked specs in [`openspec/specs/`](openspec/specs/) before writing code that fights them. Visual identity: [`docs/brand.md`](docs/brand.md) (pulse persist + [BNB Chain guidelines](https://www.bnbchain.org/en/brand-guidelines)).

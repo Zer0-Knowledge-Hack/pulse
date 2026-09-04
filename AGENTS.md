@@ -5,9 +5,10 @@ This repository uses OpenSpec as the shareable source of truth for architecture 
 ## Quick path
 
 1. Read [`openspec/config.yaml`](openspec/config.yaml) for stack, persistence mode, and phase rules.
-2. Read [`openspec/specs/`](openspec/specs/) before changing product, stack, team topology, or commerce rails.
+2. Read [`openspec/specs/`](openspec/specs/) before changing product, stack, team topology, commerce rails, or brand.
 3. Record new decisions with OpenSpec (change folder → archive into main specs). Mirror to Engram using the `topic_key` in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 4. Follow [`CONTRIBUTING.md`](CONTRIBUTING.md) for path ownership and PR shape.
+5. Follow [`docs/brand.md`](docs/brand.md) and the [BNB Chain brand guidelines](https://www.bnbchain.org/en/brand-guidelines) for colour, wording, and logo rules.
 
 ## Hard rules
 
@@ -17,6 +18,7 @@ This repository uses OpenSpec as the shareable source of truth for architecture 
 - Do not edit two workstream trees in one PR.
 - `packages/domain` changes require Platform review.
 - Persistence mode is **hybrid**: git OpenSpec + Engram. If Engram is down, still write OpenSpec.
+- Visual identity follows [`docs/brand.md`](docs/brand.md): pulse persist mark, `#F0B90B` / `#0B0E11` / `#FFFFFF`, “Building on BNB Chain”, unmodified official BNB logos. Never “Official” or “Partnering”.
 
 ## Next step
 

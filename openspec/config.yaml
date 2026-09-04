@@ -8,6 +8,7 @@ context: |
   Buyer wallet: wagmi v2 + RainbowKit. Agent wallet: Altana. Hire: ERC-8183 in $U.
   Five path-owned workstreams (P/C/H/A/S). English specs, docs, and comments.
   Persistence: OpenSpec in git + Engram topic_keys in docs/DECISIONS.md.
+  Brand: pulse persist mark; BNB Chain guidelines (#F0B90B / #0B0E11 / #FFFFFF, Building on).
 
 testing:
   runner: none

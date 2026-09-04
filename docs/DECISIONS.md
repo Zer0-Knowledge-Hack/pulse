@@ -19,6 +19,7 @@ Bootstrap decisions from 2026-09-04 were recorded directly into main specs. Late
 | Web / API / wallet stack | [`specs/stack/spec.md`](../openspec/specs/stack/spec.md) | `architecture/stack` | architecture |
 | Five workstreams | [`specs/team/spec.md`](../openspec/specs/team/spec.md) | `architecture/workstreams` | architecture |
 | Hire rail and wallets | [`specs/commerce/spec.md`](../openspec/specs/commerce/spec.md) | `architecture/commerce-rails` | architecture |
+| BNB Chain brand | [`specs/brand/spec.md`](../openspec/specs/brand/spec.md) | `architecture/brand` | architecture |
 | OpenSpec + Engram hybrid | [`specs/documentation/spec.md`](../openspec/specs/documentation/spec.md) | `architecture/sdd-persistence` | architecture |
 | SDD init context | [`openspec/config.yaml`](../openspec/config.yaml) | `sdd-init/hackathonera-bnbchain` | architecture |
 | Testing capabilities | [`openspec/config.yaml`](../openspec/config.yaml) `testing:` | `sdd/hackathonera-bnbchain/testing-capabilities` | config |

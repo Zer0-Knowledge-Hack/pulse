@@ -30,7 +30,7 @@ HTTP APIs MUST live in `apps/api` as Hono handlers using Zod schemas from `packa
 
 ### Requirement: UI kit
 
-The web UI MUST use Tailwind CSS plus a shadcn-style component kit owned by Platform under `apps/web` UI primitives. Other workstreams MUST reuse those primitives instead of adding a second design system.
+The web UI MUST use Tailwind CSS plus a shadcn-style component kit owned by Platform under `apps/web` UI primitives. Colour and logo usage MUST follow [`openspec/specs/brand/spec.md`](../brand/spec.md). Other workstreams MUST reuse those primitives instead of adding a second design system.
 
 #### Scenario: Shared chrome
 
