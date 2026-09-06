@@ -25,6 +25,7 @@ Bootstrap decisions from 2026-09-04 were recorded directly into main specs. Late
 | Testing capabilities | [`openspec/config.yaml`](../openspec/config.yaml) `testing:` | `sdd/hackathonera-bnbchain/testing-capabilities` | config |
 | Skip 8004scan ingest (Stretch, C) | [`changes/skip-8004scan-ingest/proposal.md`](../openspec/changes/skip-8004scan-ingest/proposal.md) | `catalog/skip-8004scan-ingest` | product |
 | Seed studio agents (P0, A) | [`changes/scaffold-seed-agents/proposal.md`](../openspec/changes/scaffold-seed-agents/proposal.md) | `agents/seed-studio-agents` | architecture |
+| Venus HF signal reader (S) | [`changes/add-venus-hf-reader/proposal.md`](../openspec/changes/add-venus-hf-reader/proposal.md) | `signals/venus-hf-reader` | architecture |
 
 Engram `content` shape (keep it parallel to the spec):
 
