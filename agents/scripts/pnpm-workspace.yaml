@@ -1,0 +1,6 @@
+# Standalone operator-script workspace. Kept out of the root workspace
+# (`apps/*`, `packages/*`) so the studio runtime never enters the app build.
+packages:
+  - .
+allowBuilds:
+  esbuild: true
