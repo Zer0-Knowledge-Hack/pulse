@@ -2,15 +2,14 @@ import { Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BnbChainLockup } from "@/components/brand/bnb-chain-lockup";
 import { PulseWordmark } from "@/components/brand/pulse-wordmark";
-import { isLocalChain } from "@/lib/api";
+import { chainStatusLabel } from "@/providers/network";
+import { WrongNetworkBanner } from "@/providers/wrong-network-banner";
 
 export function AppShell() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   if (path === "/lockups") {
     return <Outlet />;
   }
-
-  const local = isLocalChain();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -21,12 +20,13 @@ export function AppShell() {
           </Link>
           <div className="flex items-center gap-3">
             <p className="hidden font-mono text-[11px] uppercase text-muted sm:block">
-              {local ? "mock commerce" : "bsc"}
+              {chainStatusLabel()}
             </p>
             <ConnectButton />
           </div>
         </div>
       </header>
+      <WrongNetworkBanner />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
         <Outlet />
       </main>
