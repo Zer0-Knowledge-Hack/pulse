@@ -9,6 +9,7 @@ build/
 .output/
 .vinxi/
 out/
+.wrangler/
 
 # Env and secrets
 .env
