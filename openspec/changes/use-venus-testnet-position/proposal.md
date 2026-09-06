@@ -7,6 +7,24 @@ default (`VENUS_NETWORK=testnet`), and the demo watch position is a single-marke
 (supply + borrow BNB) created by the team with faucet funds. Mainnet constants stay available via
 `VENUS_NETWORK=mainnet` for a later upgrade.
 
+**Pending work blocker (recorded 2026-09-06):** the reader, cache, fallback, and decision records
+are shipped on `feat/venus-hf-reader`, but the live number is waiting on testnet funds:
+
+- Watch wallet generated and waiting for funds:
+  `0x22f3e24233B9BDcC65fa855495D99Fe7d2458510`. The private key lives only in the operator's local
+  scratch storage (`/tmp/opencode/position/throwaway.key`); it is never committed. Discard the key
+  after Wed 9 Sep.
+- Funding is blocked by faucet gates: the official faucet, QuickNode, and Chainstack all require a
+  mainnet balance (~0.002 BNB), a login, or an API key, so a fresh empty wallet is silently
+  rejected. Untried self-serve route: Telegram support bot `@bnbchain_official_bot` (message the
+  wallet address, 0.3 tBNB/day). Fastest option is likely a teammate (workstream A needs tBNB for
+  agent registration on chain 97) sending 0.05–0.45 tBNB directly.
+- Once funded, remaining steps for Signal: run the three-call recipe below against the funded
+  wallet (mint → enterMarkets → borrow, ~few minutes), bake the address as the default
+  `VENUS_WATCH_ADDRESS`, confirm `GET /agents/hf-watch/signal` serves the live health factor,
+  commit to `feat/venus-hf-reader`, then run the full web demo check to close Sat 5.
+
+
 ## Why
 
 - Cost: a mainnet position needs ~0.05 BNB (~$37) plus gas. A testnet position needs only faucet
