@@ -1,0 +1,7 @@
+name = "pulse-api"
+main = "src/worker.ts"
+compatibility_date = "2026-09-05"
+workers_dev = true
+
+[vars]
+WEB_ORIGIN = "https://pulse-94i.pages.dev"

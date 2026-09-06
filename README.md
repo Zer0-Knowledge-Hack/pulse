@@ -8,6 +8,8 @@ Built for the [BNB Chain Smart Money Era hackathon](https://www.bnbchain.org/en/
 
 This is not an ERC-8004 explorer clone. Identity already exists. The product is conversion: land, find by category, understand, activate.
 
+Public demo of `main`: [https://pulse-94i.pages.dev/](https://pulse-94i.pages.dev/). Catalog API: [https://pulse-api.juliocesarsevericheorellana.workers.dev/](https://pulse-api.juliocesarsevericheorellana.workers.dev/).
+
 ## Quick path
 
 1. Node 22+ and [pnpm](https://pnpm.io) 10.
