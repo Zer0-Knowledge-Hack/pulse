@@ -26,6 +26,7 @@ Bootstrap decisions from 2026-09-04 were recorded directly into main specs. Late
 | Skip 8004scan ingest (Stretch, C) | [`changes/skip-8004scan-ingest/proposal.md`](../openspec/changes/skip-8004scan-ingest/proposal.md) | `catalog/skip-8004scan-ingest` | product |
 | Seed studio agents (P0, A) | [`changes/scaffold-seed-agents/proposal.md`](../openspec/changes/scaffold-seed-agents/proposal.md) | `agents/seed-studio-agents` | architecture |
 | Venus HF signal reader (S) | [`changes/add-venus-hf-reader/proposal.md`](../openspec/changes/add-venus-hf-reader/proposal.md) | `signals/venus-hf-reader` | architecture |
+| Reader targets Venus BSC testnet + team-created vBNB position (S) | [`changes/use-venus-testnet-position/proposal.md`](../openspec/changes/use-venus-testnet-position/proposal.md) | `signals/venus-testnet-position` | architecture |
 
 Engram `content` shape (keep it parallel to the spec):
 
