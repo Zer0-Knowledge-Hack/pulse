@@ -3,12 +3,14 @@ import { RainbowKitProvider, darkTheme, getDefaultConfig } from "@rainbow-me/rai
 import { WagmiProvider } from "wagmi";
 import { bsc, bscTestnet } from "wagmi/chains";
 import { type ReactNode, useState } from "react";
+import { targetChain } from "@/providers/network";
 import "@rainbow-me/rainbowkit/styles.css";
 
 const projectId = import.meta.env.VITE_WC_PROJECT_ID || "era-marketplace-dev";
+const initialChain = targetChain() ?? bscTestnet;
 
 const wagmiConfig = getDefaultConfig({
-  appName: "Era Marketplace",
+  appName: "pulse",
   projectId,
   chains: [bscTestnet, bsc],
   ssr: false,
@@ -20,7 +22,14 @@ export function WalletProviders({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme({ accentColor: "#f0b90b", accentColorForeground: "#0b0e11", borderRadius: "small" })}>
+        <RainbowKitProvider
+          initialChain={initialChain}
+          theme={darkTheme({
+            accentColor: "#f0b90b",
+            accentColorForeground: "#0b0e11",
+            borderRadius: "small",
+          })}
+        >
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>
