@@ -29,3 +29,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+packages\.env
+apps\web\.env
+apps\web\.env.example

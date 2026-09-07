@@ -1,0 +1,22 @@
+{
+  "name": "agents-scripts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Operator scripts for the seed studio agents. Not part of the root pnpm workspace.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "register": "tsx register-erc8004.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bnbagent/studio-runtime": "0.0.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
