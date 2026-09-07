@@ -35,7 +35,7 @@
     "png-to-ico": "^3.0.2",
     "remotion": "^4.0.520",
     "tailwindcss": "^4.1.12",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vite": "^7.1.3"
   }
 }
