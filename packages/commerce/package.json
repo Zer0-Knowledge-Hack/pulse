@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@era/domain": "workspace:*"
+    "@era/domain": "workspace:*",
+    "viem": "^2.36.0"
   },
   "devDependencies": {
     "typescript": "^5.9.2"
