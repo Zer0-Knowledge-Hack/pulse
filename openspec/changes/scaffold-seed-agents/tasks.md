@@ -20,5 +20,14 @@
 
 - [x] 4.1 Generate local keystores for all 4 agents (`bag wallet new`)
 - [x] 4.2 Verify local runtime execution and negotiation (`bag dev --port ...`, `/ping`, agent card, A2A `negotiate` EIP-191 signing)
-- [ ] 4.3 Prepare ERC-8004 registration procedure for BSC Testnet (chain id 97)
-- [ ] 4.4 Provide listing facts (`tokenId`, endpoint, category) to Catalog for `packages/indexer/fixtures/featured.json`
+- [x] 4.3 Prepare ERC-8004 registration procedure for BSC Testnet (chain id 97) — runbook in `agents/REGISTRATION.md`, script in `agents/scripts/register-erc8004.ts`
+- [ ] 4.4 Provide listing facts (`tokenId`, endpoint, category) to Catalog for `packages/indexer/fixtures/featured.json` — format and the ready fields are in `agents/LISTING-HANDOFF.md`; `erc8004TokenId` and endpoints stay blocked
+
+## 5. Blockers on 4.4
+
+- [ ] 5.1 Deploy each agent to a public host (registration writes that host on-chain, so it must exist first)
+- [ ] 5.2 Run the registration to mint the four `agent_id` values on chain 97
+- [ ] 5.3 Hand the ids and endpoints to Catalog
+
+These steps need the agents' keystores, which live only on the machine
+that ran `bag wallet new` and are gitignored. Nobody else can complete them.
