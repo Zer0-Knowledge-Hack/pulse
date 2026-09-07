@@ -4,6 +4,7 @@ import {
   type JobView,
   type SessionView,
 } from "@era/domain";
+import { commerceLog } from "./log";
 
 const jobs = new Map<string, JobView>();
 let seq = 1;
@@ -24,6 +25,7 @@ function mockSession(agentId: string): SessionView {
 }
 
 export function createMockJob(input: HireIntent): JobView {
+  commerceLog("mock: createJob");
   const intent = hireIntentSchema.parse(input);
   const job: JobView = {
     jobId: `mock-${seq}`,
@@ -37,6 +39,7 @@ export function createMockJob(input: HireIntent): JobView {
   };
   seq += 1;
   jobs.set(job.jobId, job);
+  commerceLog(`mock: txHash=${job.txHashes[0]}`);
   return job;
 }
 

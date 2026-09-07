@@ -1,6 +1,7 @@
 import type { Address } from "viem";
 import type { HireIntent, JobView } from "@era/domain";
 import { HIRE_USER_ERRORS } from "./config";
+import { commerceError, commerceLog } from "./log";
 import { createMockJob, getMockJob, revokeMockSession } from "./mock";
 import {
   createAndFundJob,
@@ -52,12 +53,18 @@ export function validateHireReady(input: {
 }): HireIntent {
   const parsed = parseHireIntent(input.intent);
   if (!isLiveCommerceChain(input.chain)) {
+    commerceLog(`chain: ${input.chain}`);
     return parsed;
   }
   if (!input.connected) {
+    commerceError("wallet not connected");
     throw new Error(HIRE_USER_ERRORS.connect);
   }
-  if (input.chainId !== expectedChainId(input.chain)) {
+  commerceLog("wallet: connected");
+  const expected = expectedChainId(input.chain);
+  commerceLog(`network: expected=${expected} received=${input.chainId ?? "none"}`);
+  if (input.chainId !== expected) {
+    commerceError("wrong network");
     throw new Error(HIRE_USER_ERRORS.network);
   }
   return parsed;
@@ -67,29 +74,44 @@ export async function createJob(
   intent: HireIntent,
   options?: CreateJobOptions,
 ): Promise<JobView> {
+  commerceLog("hire: start");
   const chain = resolveCommerceChain(options?.chain);
+  commerceLog(`chain: ${chain}`);
   const parsed = parseHireIntent(intent);
   if (!isLiveCommerceChain(chain)) {
-    return createMockJob(parsed);
+    const job = createMockJob(parsed);
+    commerceLog(`mock: jobId=${job.jobId}`);
+    commerceLog("status: Funded");
+    commerceLog("hire: completed");
+    return job;
   }
   if (!options?.clients) {
+    commerceError("wallet not connected");
     throw new Error(HIRE_USER_ERRORS.connect);
   }
   try {
+    const expected = expectedChainId(chain);
     const result = await createAndFundJob(parsed, options.clients, {
       amount: options.amountInWei ?? parsed.budgetWei,
       agentAddress: options.agentAddress,
       contractAddress: options.contractAddress,
+      expectedChainId: expected,
       onPhase: options.onPhase,
       onCreated: options.onCreated,
     });
+    commerceLog(`createJob: createTxHash=${result.createTxHash ?? ""}`);
+    commerceLog(`fundJob: fundTxHash=${result.txHash}`);
     const view = toFundedJobView(parsed, result);
     try {
       const onChain = await getJobStatus(result.jobId, options.clients.publicClient, {
         contractAddress: options.contractAddress,
       });
-      return { ...view, status: onChainStatusToJobStatus(onChain.status) };
+      const status = onChainStatusToJobStatus(onChain.status);
+      commerceLog("hire: completed");
+      return { ...view, status };
     } catch {
+      commerceLog("status: Funded");
+      commerceLog("hire: completed");
       return view;
     }
   } catch (err) {
@@ -102,10 +124,12 @@ export async function getJob(
   options?: GetJobOptions,
 ): Promise<JobView | undefined> {
   const chain = resolveCommerceChain(options?.chain);
+  commerceLog(`chain: ${chain}`);
   if (!isLiveCommerceChain(chain)) {
     return getMockJob(jobId);
   }
   if (!options?.publicClient) {
+    commerceError("RPC failed");
     throw new Error(HIRE_USER_ERRORS.rpc);
   }
   const onChain = await getJobStatus(jobId, options.publicClient, {

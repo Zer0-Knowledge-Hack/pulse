@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import { commerceError, commerceLog } from "./log";
 
 /** Replace with the live ERC-8183 commerce contract once Agents publishes it. */
 export const PLACEHOLDER_ERC8183_ADDRESS =
@@ -66,9 +67,16 @@ function readProcessEnv(name: string): string | undefined {
 export function getContractAddress(override?: string): Address {
   const raw = override || readProcessEnv("VITE_CONTRACT_ADDRESS") || CONTRACT_ADDRESS;
   if (!/^0x[a-fA-F0-9]{40}$/.test(raw)) {
+    commerceError("invalid contract address");
     throw new Error(HIRE_USER_ERRORS.unavailable);
   }
-  return raw as Address;
+  const address = raw as Address;
+  if (isPlaceholderContract(address)) {
+    commerceLog(`contract: ${address} (placeholder — allowed for test, not a live deploy)`);
+  } else {
+    commerceLog(`contract: ${address}`);
+  }
+  return address;
 }
 
 export function isPlaceholderContract(address: Address): boolean {
