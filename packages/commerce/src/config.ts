@@ -7,6 +7,9 @@ export const PLACEHOLDER_ERC8183_ADDRESS =
 
 export const CONTRACT_ADDRESS = PLACEHOLDER_ERC8183_ADDRESS;
 
+/** 0.001 tBNB. Caps BSC Testnet hire so faucet wallets can fund without 0.1 tBNB. */
+export const TESTNET_DEFAULT_AMOUNT_WEI = "1000000000000000";
+
 /**
  * Minimal ERC-8183 surface used until the squad lands the real ABI.
  * `createJob` records the agent + budget; `fundJob` is payable native for now.
@@ -71,11 +74,8 @@ export function getContractAddress(override?: string): Address {
     throw new Error(HIRE_USER_ERRORS.unavailable);
   }
   const address = raw as Address;
-  if (isPlaceholderContract(address)) {
-    commerceLog(`contract: ${address} (placeholder — allowed for test, not a live deploy)`);
-  } else {
-    commerceLog(`contract: ${address}`);
-  }
+  commerceLog(`hire:contract ${address}`);
+  assertConfiguredContract(address);
   return address;
 }
 
@@ -85,6 +85,7 @@ export function isPlaceholderContract(address: Address): boolean {
 
 export function assertConfiguredContract(address: Address): void {
   if (isPlaceholderContract(address)) {
+    commerceError("contract not configured");
     throw new Error(HIRE_USER_ERRORS.unavailable);
   }
 }

@@ -15,9 +15,9 @@ export function commerceLog(message: string): void {
 
 export function commerceError(message: string, detail?: unknown): void {
   const log = logger();
-  log?.error?.(`[commerce] error: ${message}`);
+  log?.error?.(`[commerce] hire:error ${message}`);
   if (detail === undefined) return;
   const text = detail instanceof Error ? detail.message : String(detail);
   if (!text) return;
-  log?.error?.(`[commerce] error: detail=${text}`);
+  log?.error?.(`[commerce] hire:error detail=${text}`);
 }

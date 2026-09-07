@@ -11,7 +11,12 @@ import {
   type WalletClient,
 } from "viem";
 import { hireIntentSchema, type HireIntent, type JobStatus, type JobView } from "@era/domain";
-import { ERC8183_ABI, getContractAddress, HIRE_USER_ERRORS } from "./config";
+import {
+  ERC8183_ABI,
+  getContractAddress,
+  HIRE_USER_ERRORS,
+  TESTNET_DEFAULT_AMOUNT_WEI,
+} from "./config";
 import { commerceError, commerceLog } from "./log";
 
 export type CommerceWriteClients = {
@@ -40,18 +45,20 @@ export type RealHireOptions = {
 
 const ON_CHAIN_STATUS: JobOnChainStatus[] = ["Created", "Funded", "Completed"];
 const GAS_BUFFER_WEI = 10n ** 15n;
+const STATUS_POLL_MS = 2_000;
+const STATUS_POLL_ATTEMPTS = 15;
 
 export function resolveAgentAddress(agentId: string, override?: Address): Address {
   if (override) {
-    commerceLog(`agent: ${override}`);
+    commerceLog(`hire:agent ${override}`);
     return override;
   }
   if (/^0x[a-fA-F0-9]{40}$/.test(agentId)) {
-    commerceLog(`agent: ${agentId}`);
+    commerceLog(`hire:agent ${agentId}`);
     return agentId as Address;
   }
   const derived = `0x${keccak256(toBytes(agentId)).slice(26)}` as Address;
-  commerceLog(`agent: ${derived} (derived from agentId, demo fallback)`);
+  commerceLog(`hire:agent ${derived} (derived from agentId)`);
   return derived;
 }
 
@@ -68,6 +75,18 @@ export function parseBudgetWei(raw: string): bigint {
   return amount;
 }
 
+/** BSC Testnet (97) caps at 0.001 tBNB. Mock and mainnet keep the requested amount. */
+export function resolveTestnetAmountWei(requestedWei: string, expectedChainId?: number): string {
+  parseBudgetWei(requestedWei);
+  if (expectedChainId !== 97) return requestedWei;
+  if (BigInt(requestedWei) > BigInt(TESTNET_DEFAULT_AMOUNT_WEI)) {
+    commerceLog(`hire:amount ${TESTNET_DEFAULT_AMOUNT_WEI}`);
+    return TESTNET_DEFAULT_AMOUNT_WEI;
+  }
+  commerceLog(`hire:amount ${requestedWei}`);
+  return requestedWei;
+}
+
 export function parseHireIntent(input: HireIntent): HireIntent {
   try {
     const parsed = hireIntentSchema.parse(input);
@@ -76,7 +95,7 @@ export function parseHireIntent(input: HireIntent): HireIntent {
       commerceError("validation");
       throw new Error(HIRE_USER_ERRORS.agent);
     }
-    commerceLog("validation: intent valid");
+    commerceLog("hire:validation");
     return parsed;
   } catch (err) {
     if (err instanceof Error && Object.values(HIRE_USER_ERRORS).includes(err.message as never)) {
@@ -99,11 +118,22 @@ function parseJobId(jobId: string): bigint {
   return BigInt(jobId);
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = (globalThis as { setTimeout?: (fn: () => void, wait: number) => unknown }).setTimeout;
+    if (!timer) {
+      resolve();
+      return;
+    }
+    timer(resolve, ms);
+  });
+}
+
 async function requireAccount(
   walletClient: CommerceWriteClients["walletClient"],
 ): Promise<Address> {
   if (walletClient.account?.address) {
-    commerceLog("wallet: connected");
+    commerceLog("hire:wallet");
     return walletClient.account.address;
   }
   const [address] = await walletClient.getAddresses();
@@ -111,7 +141,7 @@ async function requireAccount(
     commerceError("wallet not connected");
     throw new Error(HIRE_USER_ERRORS.connect);
   }
-  commerceLog("wallet: connected");
+  commerceLog("hire:wallet");
   return address;
 }
 
@@ -121,10 +151,10 @@ async function assertExpectedNetwork(
 ): Promise<number> {
   const received = await clients.publicClient.getChainId();
   if (expected == null) {
-    commerceLog(`network: received=${received}`);
+    commerceLog(`hire:network received=${received}`);
     return received;
   }
-  commerceLog(`network: expected=${expected} received=${received}`);
+  commerceLog(`hire:network expected=${expected} received=${received}`);
   if (received !== expected) {
     commerceError("wrong network");
     throw new Error(HIRE_USER_ERRORS.network);
@@ -193,16 +223,16 @@ export async function assertAffordable(
   amountWei: bigint,
 ): Promise<void> {
   const account = await requireAccount(clients.walletClient);
-  commerceLog("balance: checking");
+  commerceLog("hire:balance");
   const balance = await clients.publicClient.getBalance({ address: account });
-  commerceLog(`balance: have=${balance.toString()} need=${(amountWei + GAS_BUFFER_WEI).toString()}`);
+  commerceLog(`hire:balance have=${balance.toString()} need=${(amountWei + GAS_BUFFER_WEI).toString()}`);
   if (balance < amountWei + GAS_BUFFER_WEI) {
     commerceError("insufficient funds");
     throw new Error(HIRE_USER_ERRORS.funds);
   }
 }
 
-async function writeContractOrPromptWallet(
+async function writeSimulatedContract(
   clients: CommerceWriteClients,
   call: {
     address: Address;
@@ -212,7 +242,7 @@ async function writeContractOrPromptWallet(
     value?: bigint;
   },
 ): Promise<{ txHash: Hex; result?: unknown }> {
-  const fallback = {
+  const request = {
     address: call.address,
     abi: ERC8183_ABI,
     functionName: call.functionName,
@@ -220,31 +250,37 @@ async function writeContractOrPromptWallet(
     account: call.account,
     ...(call.value != null ? { value: call.value } : {}),
   };
-  let request: never | undefined;
-  let result: unknown;
+  let simulated: {
+    request: Parameters<CommerceWriteClients["walletClient"]["writeContract"]>[0];
+    result: unknown;
+  };
   try {
-    const simulated = await clients.publicClient.simulateContract(
-      fallback as Parameters<CommerceWriteClients["publicClient"]["simulateContract"]>[0],
-    );
-    request = simulated.request as never;
-    result = simulated.result;
-    commerceLog(`${call.functionName}: simulation ok`);
+    simulated = (await clients.publicClient.simulateContract(
+      request as Parameters<CommerceWriteClients["publicClient"]["simulateContract"]>[0],
+    )) as unknown as typeof simulated;
   } catch (err) {
-    // Keep sending so a placeholder / undeployed contract can still open the wallet for testnet traces.
-    commerceLog(`${call.functionName}: simulation failed, sending wallet request anyway`);
-    commerceError(`${call.functionName} simulation`, err);
+    commerceError(`${call.functionName} simulation failed`, err);
+    throw mapHireError(err);
   }
-  const txHash = await clients.walletClient.writeContract(request ?? (fallback as never));
-  commerceLog(`${call.functionName}: submitted`);
-  commerceLog(`${call.functionName}: txHash=${txHash}`);
+  const txHash = await clients.walletClient.writeContract(simulated.request);
+  commerceLog(
+    call.functionName === "createJob" ? "hire:create:submitted" : "hire:fund:submitted",
+  );
+  commerceLog(
+    call.functionName === "createJob"
+      ? `hire:create:txHash ${txHash}`
+      : `hire:fund:txHash ${txHash}`,
+  );
   const receipt = await clients.publicClient.waitForTransactionReceipt({ hash: txHash });
   if (receipt.status === "reverted") {
     commerceError("transaction confirmation failed");
     commerceError("contract reverted");
     throw new Error(HIRE_USER_ERRORS.reverted);
   }
-  commerceLog(`${call.functionName}: confirmed`);
-  return { txHash, result };
+  commerceLog(
+    call.functionName === "createJob" ? "hire:create:confirmed" : "hire:fund:confirmed",
+  );
+  return { txHash, result: simulated.result };
 }
 
 export async function createRealJob(
@@ -254,7 +290,9 @@ export async function createRealJob(
 ): Promise<RealHireResult> {
   const parsed = parseHireIntent(intent);
   const address = getContractAddress(options?.contractAddress);
-  const amount = parseBudgetWei(options?.amount ?? parsed.budgetWei);
+  const amount = parseBudgetWei(
+    resolveTestnetAmountWei(options?.amount ?? parsed.budgetWei, options?.expectedChainId),
+  );
   const agent = resolveAgentAddress(parsed.agentId, options?.agentAddress);
   await requireAccount(clients.walletClient);
   await assertExpectedNetwork(clients, options?.expectedChainId);
@@ -262,20 +300,21 @@ export async function createRealJob(
 
   try {
     options?.onPhase?.("creating");
-    commerceLog("createJob: preparing");
-    commerceLog(`createJob: agent=${agent} amount=${amount.toString()}`);
-    const { txHash, result } = await writeContractOrPromptWallet(clients, {
+    commerceLog("hire:create:start");
+    commerceLog(`hire:create:agent ${agent} amount=${amount.toString()}`);
+    const { txHash, result } = await writeSimulatedContract(clients, {
       address,
       functionName: "createJob",
       args: [agent, amount, encodeJobData(parsed)],
       account: await requireAccount(clients.walletClient),
     });
     options?.onPhase?.("confirming");
-    const jobId = result != null ? String(result) : "0";
-    if (result == null) {
-      commerceLog("createJob: jobId unavailable from simulation, using 0");
+    if (result == null || result === "") {
+      commerceError("createJob failed");
+      throw new Error(HIRE_USER_ERRORS.reverted);
     }
-    commerceLog(`createJob: jobId=${jobId}`);
+    const jobId = String(result);
+    commerceLog(`hire:jobId ${jobId}`);
     return { jobId, txHash };
   } catch (err) {
     commerceError("createJob failed", err);
@@ -298,10 +337,10 @@ export async function fundRealJob(
 
   try {
     options?.onPhase?.("funding");
-    commerceLog("fundJob: preparing");
-    commerceLog(`fundJob: jobId=${jobId}`);
-    commerceLog(`fundJob: amount=${value.toString()}`);
-    const { txHash } = await writeContractOrPromptWallet(clients, {
+    commerceLog("hire:fund:start");
+    commerceLog(`hire:fund:jobId ${jobId}`);
+    commerceLog(`hire:fund:amount ${value.toString()}`);
+    const { txHash } = await writeSimulatedContract(clients, {
       address,
       functionName: "fundJob",
       args: [parsedJobId],
@@ -322,7 +361,10 @@ export async function createAndFundJob(
   options?: RealHireOptions,
 ): Promise<RealHireResult> {
   const parsed = parseHireIntent(intent);
-  const amount = options?.amount ?? parsed.budgetWei;
+  const amount = resolveTestnetAmountWei(
+    options?.amount ?? parsed.budgetWei,
+    options?.expectedChainId,
+  );
   const created = await createRealJob(parsed, clients, { ...options, amount });
   options?.onCreated?.(created.jobId);
   const funded = await fundRealJob(created.jobId, amount, clients, options);
@@ -336,7 +378,7 @@ export async function getJobStatus(
 ): Promise<{ status: JobOnChainStatus; agent: Address; amount: string }> {
   const address = getContractAddress(options?.contractAddress);
   const parsedJobId = parseJobId(jobId);
-  commerceLog("status: reading job");
+  commerceLog("hire:status");
   try {
     const result = await publicClient.readContract({
       address,
@@ -346,7 +388,7 @@ export async function getJobStatus(
     });
     const index = Number(result[2]);
     const status = ON_CHAIN_STATUS[index] ?? "Created";
-    commerceLog(`status: ${status}`);
+    commerceLog(`hire:status ${status}`);
     return {
       status,
       agent: result[0],
@@ -356,6 +398,24 @@ export async function getJobStatus(
     commerceError("status read failed", err);
     throw mapHireError(err);
   }
+}
+
+export async function waitForFundedStatus(
+  jobId: string,
+  publicClient: PublicClient,
+  options?: Pick<RealHireOptions, "contractAddress" | "onPhase">,
+): Promise<{ status: JobOnChainStatus; agent: Address; amount: string }> {
+  options?.onPhase?.("confirming");
+  let last: { status: JobOnChainStatus; agent: Address; amount: string } | undefined;
+  for (let attempt = 0; attempt < STATUS_POLL_ATTEMPTS; attempt += 1) {
+    last = await getJobStatus(jobId, publicClient, options);
+    if (last.status === "Funded" || last.status === "Completed") {
+      return last;
+    }
+    await delay(STATUS_POLL_MS);
+  }
+  commerceError("status not Funded");
+  throw new Error(HIRE_USER_ERRORS.timeout);
 }
 
 /** `txHashes[0]` = createJob, `txHashes[1]` = fundJob when both exist. */

@@ -25,7 +25,7 @@ function mockSession(agentId: string): SessionView {
 }
 
 export function createMockJob(input: HireIntent): JobView {
-  commerceLog("mock: createJob");
+  commerceLog("hire:create:start");
   const intent = hireIntentSchema.parse(input);
   const job: JobView = {
     jobId: `mock-${seq}`,
@@ -39,7 +39,7 @@ export function createMockJob(input: HireIntent): JobView {
   };
   seq += 1;
   jobs.set(job.jobId, job);
-  commerceLog(`mock: txHash=${job.txHashes[0]}`);
+  commerceLog(`hire:create:confirmed ${job.txHashes[0]}`);
   return job;
 }
 

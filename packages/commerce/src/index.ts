@@ -21,10 +21,12 @@ export {
   fundRealJob,
   createAndFundJob,
   getJobStatus,
+  waitForFundedStatus,
   mapHireError,
   parseHireIntent,
   parseBudgetWei,
   resolveAgentAddress,
+  resolveTestnetAmountWei,
   toFundedJobView,
 } from "./real";
 export type {
@@ -39,6 +41,7 @@ export {
   CONTRACT_ADDRESS,
   ERC8183_ABI,
   HIRE_USER_ERRORS,
+  TESTNET_DEFAULT_AMOUNT_WEI,
   getContractAddress,
   isPlaceholderContract,
   PLACEHOLDER_ERC8183_ADDRESS,

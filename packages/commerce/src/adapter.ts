@@ -9,7 +9,9 @@ import {
   mapHireError,
   onChainStatusToJobStatus,
   parseHireIntent,
+  resolveTestnetAmountWei,
   toFundedJobView,
+  waitForFundedStatus,
   type CommerceWriteClients,
   type HirePhase,
 } from "./real";
@@ -52,17 +54,17 @@ export function validateHireReady(input: {
   chainId?: number;
 }): HireIntent {
   const parsed = parseHireIntent(input.intent);
+  commerceLog(`hire:chain ${input.chain}`);
   if (!isLiveCommerceChain(input.chain)) {
-    commerceLog(`chain: ${input.chain}`);
     return parsed;
   }
   if (!input.connected) {
     commerceError("wallet not connected");
     throw new Error(HIRE_USER_ERRORS.connect);
   }
-  commerceLog("wallet: connected");
+  commerceLog("hire:wallet");
   const expected = expectedChainId(input.chain);
-  commerceLog(`network: expected=${expected} received=${input.chainId ?? "none"}`);
+  commerceLog(`hire:network expected=${expected} received=${input.chainId ?? "none"}`);
   if (input.chainId !== expected) {
     commerceError("wrong network");
     throw new Error(HIRE_USER_ERRORS.network);
@@ -74,15 +76,15 @@ export async function createJob(
   intent: HireIntent,
   options?: CreateJobOptions,
 ): Promise<JobView> {
-  commerceLog("hire: start");
+  commerceLog("hire:start");
   const chain = resolveCommerceChain(options?.chain);
-  commerceLog(`chain: ${chain}`);
+  commerceLog(`hire:chain ${chain}`);
   const parsed = parseHireIntent(intent);
   if (!isLiveCommerceChain(chain)) {
     const job = createMockJob(parsed);
-    commerceLog(`mock: jobId=${job.jobId}`);
-    commerceLog("status: Funded");
-    commerceLog("hire: completed");
+    commerceLog(`hire:jobId ${job.jobId}`);
+    commerceLog("hire:status Funded");
+    commerceLog("hire:complete");
     return job;
   }
   if (!options?.clients) {
@@ -91,29 +93,29 @@ export async function createJob(
   }
   try {
     const expected = expectedChainId(chain);
+    const amount = resolveTestnetAmountWei(options.amountInWei ?? parsed.budgetWei, expected);
     const result = await createAndFundJob(parsed, options.clients, {
-      amount: options.amountInWei ?? parsed.budgetWei,
+      amount,
       agentAddress: options.agentAddress,
       contractAddress: options.contractAddress,
       expectedChainId: expected,
       onPhase: options.onPhase,
       onCreated: options.onCreated,
     });
-    commerceLog(`createJob: createTxHash=${result.createTxHash ?? ""}`);
-    commerceLog(`fundJob: fundTxHash=${result.txHash}`);
-    const view = toFundedJobView(parsed, result);
-    try {
-      const onChain = await getJobStatus(result.jobId, options.clients.publicClient, {
-        contractAddress: options.contractAddress,
-      });
-      const status = onChainStatusToJobStatus(onChain.status);
-      commerceLog("hire: completed");
-      return { ...view, status };
-    } catch {
-      commerceLog("status: Funded");
-      commerceLog("hire: completed");
-      return view;
+    commerceLog(`hire:create:txHash ${result.createTxHash ?? ""}`);
+    commerceLog(`hire:fund:txHash ${result.txHash}`);
+    const onChain = await waitForFundedStatus(result.jobId, options.clients.publicClient, {
+      contractAddress: options.contractAddress,
+      onPhase: options.onPhase,
+    });
+    const status = onChainStatusToJobStatus(onChain.status);
+    if (status !== "Funded" && status !== "Completed") {
+      commerceError("status not Funded");
+      throw new Error(HIRE_USER_ERRORS.timeout);
     }
+    const view = toFundedJobView({ ...parsed, budgetWei: amount }, result);
+    commerceLog("hire:complete");
+    return { ...view, status };
   } catch (err) {
     throw mapHireError(err);
   }
@@ -124,7 +126,7 @@ export async function getJob(
   options?: GetJobOptions,
 ): Promise<JobView | undefined> {
   const chain = resolveCommerceChain(options?.chain);
-  commerceLog(`chain: ${chain}`);
+  commerceLog(`hire:chain ${chain}`);
   if (!isLiveCommerceChain(chain)) {
     return getMockJob(jobId);
   }
