@@ -48,7 +48,7 @@ Five people have write access. A stream MUST NOT be split. Handles: `TOMOKI977`,
 |--------|--------|--------------------------|
 | **P** Platform | `TOMOKI977` | Public URL of `main`. Wallet connect on BSC testnet. `main` stays demoable. |
 | **C** Catalog | `XxHugheadxX` | Featured listings stay complete for all four categories. Publish A's agents into fixtures. Featured vs network if 8004scan is ready. |
-| **H** Commerce | _unclaimed_ | Hire on BSC testnet: create job → fund → show Funded + tx hash. Mock adapter still works when `VITE_CHAIN=local`. |
+| **H** Commerce | `Pericena` | Hire on BSC testnet: create job → fund → show Funded + tx hash. Mock adapter still works when `VITE_CHAIN=local`. |
 | **A** Agents | `moises-cisneros` | Four Studio agents in `agents/` (one per category). At least one registered on chain id 97. Hand tokenId / endpoint / category to Catalog — do not edit `apps/web`. |
 | **S** Signal | `fercodes` | Four category widgets with honest numbers. Start `evidence/` for TermiX (even one recorded task). |
 
