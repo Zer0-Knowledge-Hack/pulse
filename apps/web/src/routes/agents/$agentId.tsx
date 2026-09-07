@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getRouteApi } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import type { AgentListing, AgentSignal } from "@era/domain";
-import { Badge } from "@/components/ui";
+import { Badge, Button, PageState } from "@/components/ui";
 import { CategorySignal } from "@/features/signals/category-signal";
 import { HirePanel } from "@/features/hire/hire-cta";
 import { getAgent, getSignal } from "@/lib/api";
@@ -13,14 +13,26 @@ export function AgentDetailPage() {
   const [agent, setAgent] = useState<AgentListing | null>(null);
   const [signal, setSignal] = useState<AgentSignal | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getAgent(agentId), getSignal(agentId)])
-      .then(([agentRes, signalRes]) => {
+    setAgent(null);
+    setSignal(null);
+    setError(null);
+
+    getAgent(agentId)
+      .then(async ({ agent: row }) => {
         if (cancelled) return;
-        setAgent(agentRes.agent);
-        setSignal(signalRes.signal);
+        setAgent(row);
+        // The signal is decoration. A missing one must not hide the agent
+        // or, worse, its hire panel.
+        try {
+          const { signal: value } = await getSignal(agentId);
+          if (!cancelled) setSignal(value);
+        } catch {
+          if (!cancelled) setSignal(null);
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -30,13 +42,36 @@ export function AgentDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [agentId]);
+  }, [agentId, attempt]);
 
   if (error) {
-    return <p className="text-danger">{error}</p>;
+    return (
+      <PageState
+        tone="danger"
+        title="This agent could not be loaded"
+        action={
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setAttempt((n) => n + 1)}
+            >
+              Try again
+            </Button>
+            <Link to="/">
+              <Button variant="ghost" type="button">
+                Back to the marketplace
+              </Button>
+            </Link>
+          </div>
+        }
+      >
+        <p className="font-mono text-xs break-all">{error}</p>
+      </PageState>
+    );
   }
   if (!agent) {
-    return <p className="text-muted">Loading…</p>;
+    return <PageState title="Loading the agent…" />;
   }
 
   return (
