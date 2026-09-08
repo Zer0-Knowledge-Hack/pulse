@@ -72,13 +72,17 @@ async function run(): Promise<void> {
 
   // Regression: Submitted means the agent already delivered. Treating it as
   // "not funded" reported a timeout on a hire that had actually succeeded.
-  const fundedEnough = ["Funded", "Submitted", "Completed"];
+  const fundedEnough: readonly (typeof ON_CHAIN_STATUS)[number][] = [
+    "Funded",
+    "Submitted",
+    "Completed",
+  ];
   for (const status of fundedEnough) {
     assert.equal(ON_CHAIN_STATUS.includes(status), true, `${status} must be a real contract state`);
   }
-  assert.equal(fundedEnough.includes("Open"), false);
-  assert.equal(fundedEnough.includes("Rejected"), false);
-  assert.equal(fundedEnough.includes("Expired"), false);
+  for (const notFunded of ["Open", "Rejected", "Expired"] as const) {
+    assert.equal(fundedEnough.includes(notFunded), false);
+  }
 
   // The status indices must line up with the contract's enum order, because
   // getJobStatus indexes this array with the raw uint8.
