@@ -29,6 +29,11 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Claude Code personal config. Hooks are opt-in per developer, so the file
+# that activates one is never shared. Committed hook scripts, if any, live
+# in .claude/hooks/ and are activated only by a local settings file.
+.claude/settings.local.json
 packages\.env
 apps\web\.env
 apps\web\.env.example
