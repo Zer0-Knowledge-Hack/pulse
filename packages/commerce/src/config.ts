@@ -191,6 +191,8 @@ export const HIRE_USER_ERRORS = {
   amount: "Enter a valid amount.",
   agent: "This agent can’t be hired right now.",
   approve: "Approve $U spending so the escrow can pull the budget.",
+  rejected: "This job was rejected on-chain. Your $U was not taken.",
+  expired: "This job expired before it was funded.",
   reverted: "We couldn’t complete the hire. Try again.",
   rpc: "We couldn’t reach the network. Try again.",
   timeout: "This is taking longer than expected. We’re checking it.",

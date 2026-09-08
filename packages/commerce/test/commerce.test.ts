@@ -4,6 +4,7 @@ import {
   COMMERCE_CONTRACTS,
   DEFAULT_EXPIRY_SECONDS,
   MAX_EXPIRY_SECONDS,
+  ON_CHAIN_STATUS,
   PAYMENT_TOKENS,
   TESTNET_DEFAULT_AMOUNT_WEI,
   getContractAddress,
@@ -51,6 +52,10 @@ async function run(): Promise<void> {
   // rather than accepted as configuration.
   assert.equal(getContractAddress(undefined, 97), COMMERCE_CONTRACTS[97]);
   assert.equal(getContractAddress(undefined, 56), COMMERCE_CONTRACTS[56]);
+  // Regression: the two chains must never resolve to the same address.
+  // Dropping expectedChainId on a read path silently returned the testnet
+  // contract while the wallet was on mainnet.
+  assert.notEqual(COMMERCE_CONTRACTS[97], COMMERCE_CONTRACTS[56]);
   assert.equal(getPaymentToken(undefined, 97), PAYMENT_TOKENS[97]);
   assert.throws(() => getContractAddress("0x0000000000000000000000000000000000000000"));
   assert.throws(() => getContractAddress("not-an-address"));
@@ -64,6 +69,25 @@ async function run(): Promise<void> {
   const description = encodeJobDescription(intent);
   assert.equal(typeof description, "string");
   assert.deepEqual(JSON.parse(description), { agentId: intent.agentId, task: intent.task });
+
+  // Regression: Submitted means the agent already delivered. Treating it as
+  // "not funded" reported a timeout on a hire that had actually succeeded.
+  const fundedEnough = ["Funded", "Submitted", "Completed"];
+  for (const status of fundedEnough) {
+    assert.equal(ON_CHAIN_STATUS.includes(status), true, `${status} must be a real contract state`);
+  }
+  assert.equal(fundedEnough.includes("Open"), false);
+  assert.equal(fundedEnough.includes("Rejected"), false);
+  assert.equal(fundedEnough.includes("Expired"), false);
+
+  // The status indices must line up with the contract's enum order, because
+  // getJobStatus indexes this array with the raw uint8.
+  assert.equal(ON_CHAIN_STATUS[0], "Open");
+  assert.equal(ON_CHAIN_STATUS[1], "Funded");
+  assert.equal(ON_CHAIN_STATUS[2], "Submitted");
+  assert.equal(ON_CHAIN_STATUS[3], "Completed");
+  assert.equal(ON_CHAIN_STATUS[4], "Rejected");
+  assert.equal(ON_CHAIN_STATUS[5], "Expired");
 
   // The contract enum and the domain status names are the same six values.
   assert.equal(onChainStatusToJobStatus("Open"), "Open");

@@ -584,8 +584,20 @@ export async function waitForFundedStatus(
   let last: { status: JobOnChainStatus; agent: Address; amount: string } | undefined;
   for (let attempt = 0; attempt < STATUS_POLL_ATTEMPTS; attempt += 1) {
     last = await getJobStatus(jobId, publicClient, options);
-    if (last.status !== "Open") {
+    // Funded is the goal. Submitted and Completed mean the agent already
+    // moved past it, which is still a funded job.
+    if (last.status === "Funded" || last.status === "Submitted" || last.status === "Completed") {
       return last;
+    }
+    // Terminal failures. Polling these to the timeout would report
+    // "taking longer than expected" for a job that is already dead.
+    if (last.status === "Rejected") {
+      commerceError("job rejected");
+      throw new Error(HIRE_USER_ERRORS.rejected);
+    }
+    if (last.status === "Expired") {
+      commerceError("job expired");
+      throw new Error(HIRE_USER_ERRORS.expired);
     }
     await delay(STATUS_POLL_MS);
   }
