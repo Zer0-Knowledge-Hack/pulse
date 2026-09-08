@@ -9,6 +9,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
+    "pr:audit": "node scripts/pr-audit.mjs",
     "brand:export": "pnpm --filter @era/web brand:export"
   },
   "devDependencies": {

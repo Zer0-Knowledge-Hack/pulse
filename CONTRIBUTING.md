@@ -71,10 +71,29 @@ Intentionally out of scope for most PRs: new protocols, custodial vaults, infini
 
 Do not bury architecture in chat. Record it in OpenSpec and mirror it to Engram. Process: [docs/DECISIONS.md](docs/DECISIONS.md).
 
+## Audit before you open a PR
+
+```bash
+pnpm pr:audit --body <your-pr-body.md>
+```
+
+It runs typecheck, tests and build, and it reads the description you are
+about to publish. A PR can mislead a reviewer in two ways, and only one of
+them turns CI red.
+
+The description checks are the other half: every file path you name in
+backticks must exist, every `#123` you cite must be a real issue or PR, and
+a leftover `TODO` blocks. A description that names a file nobody wrote costs
+a reviewer more time than a failing build, because nothing flags it.
+
+It also refuses to pass while the working tree is dirty or the branch is
+unpushed, since either means the PR will not contain what you are describing.
+
 ## Checklist
 
 - [ ] You are not on `main` when you commit
 - [ ] Branch name matches the regex above
+- [ ] `pnpm pr:audit --body <file>` passes
 - [ ] PR description states what to review first and what is out of scope
 - [ ] Fixtures or tests cover the new behavior
 - [ ] You did not add a second copy of a decision that already lives in `openspec/specs/`
