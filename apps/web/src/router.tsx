@@ -3,6 +3,7 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
+import { RouteErrorState, RouteNotFoundState } from "@/components/ui";
 import { AppShell } from "@/routes/__root";
 import { HomePage } from "@/routes/index";
 import { BrowsePage } from "@/routes/browse/$category";
@@ -44,7 +45,11 @@ const routeTree = rootRoute.addChildren([
   lockupsRoute,
 ]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  defaultErrorComponent: RouteErrorState,
+  defaultNotFoundComponent: RouteNotFoundState,
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

@@ -9,6 +9,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
+    "test": "turbo test",
     "brand:export": "pnpm --filter @era/web brand:export"
   },
   "devDependencies": {
