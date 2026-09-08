@@ -8,13 +8,15 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types ./test/commerce.test.ts"
+    "test": "tsx ./test/commerce.test.ts"
   },
   "dependencies": {
     "@era/domain": "workspace:*",
     "viem": "^2.36.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0"
   }
 }
