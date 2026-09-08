@@ -144,7 +144,13 @@ if (bodyPath) {
 
     // Unresolved placeholders. A shipped "TODO" in a description is a
     // sentence the author meant to finish.
-    const placeholders = body.match(/\b(TODO|TBD|FIXME|XXX|LOREM)\b|<[A-Z_]{3,}>/g);
+    //
+    // Code spans and fenced blocks are stripped first: a doc that explains
+    // it detects `TODO` is discussing the word, not leaving one behind.
+    const prose = body
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/`[^`\n]*`/g, " ");
+    const placeholders = prose.match(/\b(TODO|TBD|FIXME|XXX|LOREM)\b|<[A-Z_]{3,}>/g);
     if (placeholders) {
       fail("no unresolved placeholders", [...new Set(placeholders)].join(", "));
     } else {
