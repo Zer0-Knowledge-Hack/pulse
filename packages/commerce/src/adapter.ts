@@ -106,11 +106,14 @@ export async function createJob(
     commerceLog(`hire:fund:txHash ${result.txHash}`);
     const onChain = await waitForFundedStatus(result.jobId, options.clients.publicClient, {
       contractAddress: options.contractAddress,
+      expectedChainId: expected,
       onPhase: options.onPhase,
     });
     const status = onChainStatusToJobStatus(onChain.status);
-    if (status !== "Funded" && status !== "Completed") {
-      commerceError("status not Funded");
+    // Submitted means the agent already delivered, which is a faster success,
+    // not a failure. Only a job still sitting Open failed to fund.
+    if (status !== "Funded" && status !== "Submitted" && status !== "Completed") {
+      commerceError(`status not Funded (${status})`);
       throw new Error(HIRE_USER_ERRORS.timeout);
     }
     const view = toFundedJobView({ ...parsed, budgetWei: amount }, result);
@@ -136,6 +139,7 @@ export async function getJob(
   }
   const onChain = await getJobStatus(jobId, options.publicClient, {
     contractAddress: options.contractAddress,
+    expectedChainId: expectedChainId(chain),
   });
   if (options.fallback?.jobId === jobId) {
     return { ...options.fallback, status: onChainStatusToJobStatus(onChain.status) };

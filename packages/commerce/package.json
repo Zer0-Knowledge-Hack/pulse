@@ -8,7 +8,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "tsx ./test/commerce.test.ts"
+    "test": "tsx ./test/commerce.test.ts",
+    "verify:live": "tsx ./scripts/verify-live.mjs"
   },
   "dependencies": {
     "@era/domain": "workspace:*",

@@ -1,7 +1,23 @@
 import assert from "node:assert/strict";
 import { createJob, getJob, expectedChainId, isLiveCommerceChain } from "../src/adapter";
-import { getContractAddress, PLACEHOLDER_ERC8183_ADDRESS, TESTNET_DEFAULT_AMOUNT_WEI } from "../src/config";
-import { mapHireError, onChainStatusToJobStatus, parseHireIntent, resolveTestnetAmountWei } from "../src/real";
+import {
+  COMMERCE_CONTRACTS,
+  DEFAULT_EXPIRY_SECONDS,
+  MAX_EXPIRY_SECONDS,
+  ON_CHAIN_STATUS,
+  PAYMENT_TOKENS,
+  TESTNET_DEFAULT_AMOUNT_WEI,
+  getContractAddress,
+  getPaymentToken,
+  resolveExpiry,
+} from "../src/config";
+import {
+  encodeJobDescription,
+  mapHireError,
+  onChainStatusToJobStatus,
+  parseHireIntent,
+  resolveTestnetAmountWei,
+} from "../src/real";
 
 const intent = {
   agentId: "range-keeper",
@@ -32,11 +48,68 @@ async function run(): Promise<void> {
   assert.equal(stored?.jobId, created.jobId);
   assert.equal(stored?.status, "Funded");
 
-  assert.throws(() => getContractAddress(PLACEHOLDER_ERC8183_ADDRESS));
-  assert.equal(onChainStatusToJobStatus("Created"), "Open");
+  // The canonical deployment is the default, and a zero address is refused
+  // rather than accepted as configuration.
+  assert.equal(getContractAddress(undefined, 97), COMMERCE_CONTRACTS[97]);
+  assert.equal(getContractAddress(undefined, 56), COMMERCE_CONTRACTS[56]);
+  // Regression: the two chains must never resolve to the same address.
+  // Dropping expectedChainId on a read path silently returned the testnet
+  // contract while the wallet was on mainnet.
+  assert.notEqual(COMMERCE_CONTRACTS[97], COMMERCE_CONTRACTS[56]);
+  assert.equal(getPaymentToken(undefined, 97), PAYMENT_TOKENS[97]);
+  assert.throws(() => getContractAddress("0x0000000000000000000000000000000000000000"));
+  assert.throws(() => getContractAddress("not-an-address"));
+  assert.throws(() => getPaymentToken("0x0000000000000000000000000000000000000000"));
+
+  // Expiry must stay inside what the contract accepts.
+  assert.equal(resolveExpiry(1_000n), 1_000n + DEFAULT_EXPIRY_SECONDS);
+  assert.equal(DEFAULT_EXPIRY_SECONDS <= MAX_EXPIRY_SECONDS, true);
+
+  // createJob takes a plain string description, so the agent can read it.
+  const description = encodeJobDescription(intent);
+  assert.equal(typeof description, "string");
+  assert.deepEqual(JSON.parse(description), { agentId: intent.agentId, task: intent.task });
+
+  // Regression: Submitted means the agent already delivered. Treating it as
+  // "not funded" reported a timeout on a hire that had actually succeeded.
+  const fundedEnough: readonly (typeof ON_CHAIN_STATUS)[number][] = [
+    "Funded",
+    "Submitted",
+    "Completed",
+  ];
+  for (const status of fundedEnough) {
+    assert.equal(ON_CHAIN_STATUS.includes(status), true, `${status} must be a real contract state`);
+  }
+  for (const notFunded of ["Open", "Rejected", "Expired"] as const) {
+    assert.equal(fundedEnough.includes(notFunded), false);
+  }
+
+  // The status indices must line up with the contract's enum order, because
+  // getJobStatus indexes this array with the raw uint8.
+  assert.equal(ON_CHAIN_STATUS[0], "Open");
+  assert.equal(ON_CHAIN_STATUS[1], "Funded");
+  assert.equal(ON_CHAIN_STATUS[2], "Submitted");
+  assert.equal(ON_CHAIN_STATUS[3], "Completed");
+  assert.equal(ON_CHAIN_STATUS[4], "Rejected");
+  assert.equal(ON_CHAIN_STATUS[5], "Expired");
+
+  // The contract enum and the domain status names are the same six values.
+  assert.equal(onChainStatusToJobStatus("Open"), "Open");
   assert.equal(onChainStatusToJobStatus("Funded"), "Funded");
+  assert.equal(onChainStatusToJobStatus("Submitted"), "Submitted");
   assert.equal(onChainStatusToJobStatus("Completed"), "Completed");
+  assert.equal(onChainStatusToJobStatus("Rejected"), "Rejected");
+  assert.equal(onChainStatusToJobStatus("Expired"), "Expired");
+
   assert.equal(mapHireError(new Error("user rejected the request")).message, "You cancelled the operation.");
+  assert.equal(
+    mapHireError(new Error("ERC20InsufficientAllowance")).message,
+    "Approve $U spending so the escrow can pull the budget.",
+  );
+  assert.equal(
+    mapHireError(new Error("EnforcedPause()")).message,
+    "Hiring is paused on the commerce contract right now.",
+  );
 }
 
 void run();

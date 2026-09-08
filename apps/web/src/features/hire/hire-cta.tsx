@@ -53,10 +53,17 @@ function storeJobId(agentId: string, jobId: string): void {
   sessionStorage.setItem(storageKey(agentId), JSON.stringify({ jobId, agentId }));
 }
 
+/**
+ * A live hire is four wallet signatures: open the job, set its budget,
+ * approve $U, then fund. Each phase says which one is on screen, so the
+ * buyer is not surprised by a second or third prompt.
+ */
 function phaseLabel(phase: UiPhase): string {
   if (phase === "preparing") return "Preparing…";
-  if (phase === "creating") return "Confirm in your wallet…";
-  if (phase === "funding") return "Confirm payment in your wallet…";
+  if (phase === "creating") return "1 of 4 · Confirm the job in your wallet…";
+  if (phase === "budgeting") return "2 of 4 · Confirm the budget…";
+  if (phase === "approving") return "3 of 4 · Approve $U spending…";
+  if (phase === "funding") return "4 of 4 · Confirm the payment…";
   if (phase === "confirming") return "Processing… we’re checking the payment.";
   return "Hire";
 }
@@ -85,7 +92,13 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
   const [error, setError] = useState<string | null>(null);
   const [phase, setPhase] = useState<UiPhase>("idle");
 
-  const busy = phase === "preparing" || phase === "creating" || phase === "funding" || phase === "confirming";
+  const busy =
+    phase === "preparing" ||
+    phase === "creating" ||
+    phase === "budgeting" ||
+    phase === "approving" ||
+    phase === "funding" ||
+    phase === "confirming";
   const wrongNetwork = !local && isConnected && chainId !== (chain === "bsc-mainnet" ? 56 : 97);
   const canHire = local || (isConnected && Boolean(walletClient) && Boolean(publicClient) && !wrongNetwork);
 

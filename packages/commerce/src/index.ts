@@ -18,6 +18,8 @@ export type { CreateJobOptions, GetJobOptions } from "./adapter";
 
 export {
   createRealJob,
+  setJobBudget,
+  ensureAllowance,
   fundRealJob,
   createAndFundJob,
   getJobStatus,
@@ -28,6 +30,9 @@ export {
   resolveAgentAddress,
   resolveTestnetAmountWei,
   toFundedJobView,
+  onChainStatusToJobStatus,
+  assertAffordable,
+  encodeJobDescription,
 } from "./real";
 export type {
   CommerceWriteClients,
@@ -38,11 +43,17 @@ export type {
 } from "./real";
 
 export {
-  CONTRACT_ADDRESS,
+  COMMERCE_CONTRACTS,
+  PAYMENT_TOKENS,
   ERC8183_ABI,
+  ERC20_ABI,
   HIRE_USER_ERRORS,
+  ON_CHAIN_STATUS,
   TESTNET_DEFAULT_AMOUNT_WEI,
+  MAX_EXPIRY_SECONDS,
+  DEFAULT_EXPIRY_SECONDS,
+  ZERO_ADDRESS,
   getContractAddress,
-  isPlaceholderContract,
-  PLACEHOLDER_ERC8183_ADDRESS,
+  getPaymentToken,
+  resolveExpiry,
 } from "./config";
