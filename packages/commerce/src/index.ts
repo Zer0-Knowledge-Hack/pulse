@@ -19,6 +19,7 @@ export type { CreateJobOptions, GetJobOptions } from "./adapter";
 export {
   createRealJob,
   setJobBudget,
+  registerJobPolicy,
   ensureAllowance,
   fundRealJob,
   createAndFundJob,
@@ -44,9 +45,12 @@ export type {
 
 export {
   COMMERCE_CONTRACTS,
+  EVALUATOR_ROUTERS,
+  OPTIMISTIC_POLICIES,
   PAYMENT_TOKENS,
   ERC8183_ABI,
   ERC20_ABI,
+  EVALUATOR_ROUTER_ABI,
   HIRE_USER_ERRORS,
   ON_CHAIN_STATUS,
   TESTNET_DEFAULT_AMOUNT_WEI,
@@ -55,5 +59,7 @@ export {
   ZERO_ADDRESS,
   getContractAddress,
   getPaymentToken,
+  getEvaluatorRouter,
+  getOptimisticPolicy,
   resolveExpiry,
 } from "./config";

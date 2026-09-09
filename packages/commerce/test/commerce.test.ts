@@ -3,11 +3,16 @@ import { createJob, getJob, expectedChainId, isLiveCommerceChain } from "../src/
 import {
   COMMERCE_CONTRACTS,
   DEFAULT_EXPIRY_SECONDS,
+  EVALUATOR_ROUTERS,
+  HIRE_USER_ERRORS,
   MAX_EXPIRY_SECONDS,
   ON_CHAIN_STATUS,
+  OPTIMISTIC_POLICIES,
   PAYMENT_TOKENS,
   TESTNET_DEFAULT_AMOUNT_WEI,
   getContractAddress,
+  getEvaluatorRouter,
+  getOptimisticPolicy,
   getPaymentToken,
   resolveExpiry,
 } from "../src/config";
@@ -109,6 +114,25 @@ async function run(): Promise<void> {
   assert.equal(
     mapHireError(new Error("EnforcedPause()")).message,
     "Hiring is paused on the commerce contract right now.",
+  );
+
+  // Canonical EvaluatorRouter + OptimisticPolicy, and the revert selectors
+  // that fire when createJob/fund skip them.
+  assert.equal(getEvaluatorRouter(97), EVALUATOR_ROUTERS[97]);
+  assert.equal(getOptimisticPolicy(97), OPTIMISTIC_POLICIES[97]);
+  assert.notEqual(EVALUATOR_ROUTERS[97], EVALUATOR_ROUTERS[56]);
+  assert.equal(DEFAULT_EXPIRY_SECONDS, 30n * 24n * 60n * 60n);
+  assert.equal(
+    mapHireError(new Error("execution reverted: 0x55c45de1")).message,
+    HIRE_USER_ERRORS.hook,
+  );
+  assert.equal(
+    mapHireError(new Error("execution reverted: 0x32d53d69")).message,
+    HIRE_USER_ERRORS.policy,
+  );
+  assert.equal(
+    mapHireError(new Error("execution reverted: 0xec43ea50")).message,
+    HIRE_USER_ERRORS.hook,
   );
 }
 

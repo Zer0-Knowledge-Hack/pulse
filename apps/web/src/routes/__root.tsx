@@ -1,8 +1,9 @@
-import { Outlet, Link, useRouterState } from "@tanstack/react-router";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Outlet, useRouterState } from "@tanstack/react-router";
 import { BnbChainLockup } from "@/components/brand/bnb-chain-lockup";
-import { PulseWordmark } from "@/components/brand/pulse-wordmark";
-import { chainStatusLabel } from "@/providers/network";
+import { AppBottomNav } from "@/components/layout/app-bottom-nav";
+import { AppHeader } from "@/components/layout/app-header";
+import { ToastProvider } from "@/components/ui";
+import { InboxProvider } from "@/features/account/inbox";
 import { WrongNetworkBanner } from "@/providers/wrong-network-banner";
 
 export function AppShell() {
@@ -12,47 +13,46 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <Link to="/" className="overflow-visible text-paper">
-            <PulseWordmark />
-          </Link>
-          <div className="flex items-center gap-3">
-            <p className="hidden font-mono text-[11px] uppercase text-muted sm:block">
-              {chainStatusLabel()}
-            </p>
-            <ConnectButton />
-          </div>
-        </div>
-      </header>
-      <WrongNetworkBanner />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
-        <Outlet />
-      </main>
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3" style={{ paddingBlock: 16 }}>
-            <p className="text-sm text-muted">Building on</p>
-            <a
-              href="https://www.bnbchain.org"
-              rel="noreferrer"
-              target="_blank"
-              className="inline-flex"
-            >
-              <BnbChainLockup />
-            </a>
-          </div>
+    <ToastProvider>
+      <InboxProvider>
+        <div className="flex min-h-screen flex-col">
           <a
-            href="https://www.bnbchain.org/en/brand-guidelines"
-            rel="noreferrer"
-            target="_blank"
-            className="text-xs text-muted hover:text-paper"
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-full focus:bg-accent focus:px-3 focus:py-2 focus:text-ink"
           >
-            BNB Chain brand guidelines
+            Skip to content
           </a>
+          <AppHeader />
+          <WrongNetworkBanner />
+          <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-4 pb-20 sm:px-6 sm:py-6 lg:pb-6">
+            <Outlet />
+          </main>
+          <footer className="border-t border-line pb-16 lg:pb-0">
+            <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="lede">Building on</p>
+                <a
+                  href="https://www.bnbchain.org"
+                  rel="noreferrer"
+                  target="_blank"
+                  className="inline-flex"
+                >
+                  <BnbChainLockup />
+                </a>
+              </div>
+              <a
+                href="https://www.bnbchain.org/en/brand-guidelines"
+                rel="noreferrer"
+                target="_blank"
+                className="text-xs text-muted hover:text-paper"
+              >
+                BNB Chain brand guidelines
+              </a>
+            </div>
+          </footer>
+          <AppBottomNav />
         </div>
-      </footer>
-    </div>
+      </InboxProvider>
+    </ToastProvider>
   );
 }
