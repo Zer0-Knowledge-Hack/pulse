@@ -26,14 +26,15 @@ This fulfills task 71 of the sprint plan (`docs/sprint.md`: *"Stretch: Three mor
    - Register ERC-8004 identity on BSC Testnet for wallet `0x78f800FBA857Ae0a33eEa55f62a68ddA20b27185`.
 4. **Catalog Delivery & Context Ledger**:
    - Format listing facts for all four categories per `agents/LISTING-HANDOFF.md`.
-   - Synchronize `agents/CONTEXT.md` and `.antigravity/CONTEXT.md`.
 
 ## Capabilities
 
 ### New Capabilities
+
 None.
 
 ### Modified Capabilities
+
 None (`skip_specs: true` set in `.openspec.yaml` as this change involves operational deployment and on-chain identity minting without altering core spec requirements).
 
 ## Impact
