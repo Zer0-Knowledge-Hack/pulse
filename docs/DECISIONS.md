@@ -27,6 +27,8 @@ Bootstrap decisions from 2026-09-04 were recorded directly into main specs. Late
 | Seed studio agents (P0, A) | [`changes/scaffold-seed-agents/proposal.md`](../openspec/changes/scaffold-seed-agents/proposal.md) | `agents/seed-studio-agents` | architecture |
 | Venus HF signal reader (S) | [`changes/add-venus-hf-reader/proposal.md`](../openspec/changes/add-venus-hf-reader/proposal.md) | `signals/venus-hf-reader` | architecture |
 | Reader targets Venus BSC testnet + team-created vBNB position (S) | [`changes/use-venus-testnet-position/proposal.md`](../openspec/changes/use-venus-testnet-position/proposal.md) | `signals/venus-testnet-position` | architecture |
+| Deploy and register hfwatch (P0, A) | [`changes/deploy-register-hfwatch/proposal.md`](../openspec/changes/deploy-register-hfwatch/proposal.md) | `agents/deploy-register-hfwatch` | architecture |
+| Deploy remaining seed agents (Stretch, A) | [`changes/deploy-register-remaining-agents/proposal.md`](../openspec/changes/deploy-register-remaining-agents/proposal.md) | `agents/deploy-register-remaining-agents` | architecture |
 
 Engram `content` shape (keep it parallel to the spec):
 
