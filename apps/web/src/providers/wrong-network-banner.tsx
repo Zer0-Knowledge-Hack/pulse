@@ -13,20 +13,21 @@ export function WrongNetworkBanner() {
 
   return (
     <div className="border-b border-danger bg-ink-2">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="text-sm">
           Wrong network. Switch to {target.name} to hire on this demo.
         </p>
         <div className="flex flex-col items-start gap-2 sm:items-end">
           <Button
             type="button"
-            disabled={isPending || !switchChain}
-            onClick={() => switchChain({ chainId: target.id })}
+            loading={isPending}
+            disabled={!switchChain}
+            onClick={() => switchChain?.({ chainId: target.id })}
           >
             {isPending ? "Switching…" : `Switch to ${target.name}`}
           </Button>
           {error ? (
-            <p className="text-sm text-danger">{error.message}</p>
+            <p className="text-sm text-danger">Unable to continue. Try the switch again.</p>
           ) : null}
         </div>
       </div>
