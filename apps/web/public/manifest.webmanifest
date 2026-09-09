@@ -1,0 +1,32 @@
+{
+  "name": "pulse",
+  "short_name": "pulse",
+  "description": "Hire BNB Chain agents by the job they do.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0E11",
+  "theme_color": "#0B0E11",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/product/pulse-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/product/pulse-icon.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/product/pulse-icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
