@@ -7,22 +7,33 @@ default (`VENUS_NETWORK=testnet`), and the demo watch position is a single-marke
 (supply + borrow BNB) created by the team with faucet funds. Mainnet constants stay available via
 `VENUS_NETWORK=mainnet` for a later upgrade.
 
-**Pending work blocker (recorded 2026-09-06):** the reader, cache, fallback, and decision records
-are shipped on `feat/venus-hf-reader`, but the live number is waiting on testnet funds:
+**Resolved 2026-09-09:** the team funded the watch wallet (0.0471 tBNB), the demo position was
+created on Venus BSC testnet and the live signal is served by default:
 
-- Watch wallet generated and waiting for funds:
-  `0x22f3e24233B9BDcC65fa855495D99Fe7d2458510`. The private key lives only in the operator's local
-  scratch storage (`/tmp/opencode/position/throwaway.key`); it is never committed. Discard the key
-  after Wed 9 Sep.
-- Funding is blocked by faucet gates: the official faucet, QuickNode, and Chainstack all require a
-  mainnet balance (~0.002 BNB), a login, or an API key, so a fresh empty wallet is silently
-  rejected. Untried self-serve route: Telegram support bot `@bnbchain_official_bot` (message the
-  wallet address, 0.3 tBNB/day). Fastest option is likely a teammate (workstream A needs tBNB for
-  agent registration on chain 97) sending 0.05–0.45 tBNB directly.
-- Once funded, remaining steps for Signal: run the three-call recipe below against the funded
-  wallet (mint → enterMarkets → borrow, ~few minutes), bake the address as the default
-  `VENUS_WATCH_ADDRESS`, confirm `GET /agents/hf-watch/signal` serves the live health factor,
-  commit to `feat/venus-hf-reader`, then run the full web demo check to close Sat 5.
+- Position: 0.035 tBNB minted into vBNB, entered vBNB/vWBNB/vU markets, borrowed **8 $U** from the
+  `vU` market (the hackathon's own payment token)
+- Result: health factor **≈ 1.84**, approximate liquidation price ≈ $326, read live by the
+  deployed reader
+- Transactions: mint `0x3231792f2e5ca8ccebb358352f970d39f4da4b92a9c5e4bbeffb6b6683171651`,
+  enterMarkets(vBNB) `0x2408e1157add407dd9e2125171680f4e79cd1b27a8749a84ced1e47a4f53a433`,
+  enterMarkets(vU) `0xf5ff2acda622d651a79684157622d3a3dae505025c17bcf38095fee5252b9e7b`,
+  borrow `0x1b20e903bf74d3472256c2fcae4b1b70ae53af1dd96b4a9baebbeb5e0769acc6`
+- Constraint noted: the testnet vBNB market borrow cap is 0 and vWBNB borrow action is paused
+  (protocol governance), which is why the borrow side uses `$U`
+- The original vBNB-only position recipe below stays as documentation of what was attempted
+  first. The private key remains in the operator's local scratch storage
+  (`/tmp/opencode/position/throwaway.key`), never committed; discard after Wed 9 Sep.
+
+**Pending work blocker** (from 2026-09-06, superseded for the wallet-funding part; agent leg of
+the TermiX evidence still needs workstream A's deployed endpoint):
+
+- Watch wallet: `0x22f3e24233B9BDcC65fa855495D99Fe7d2458510` — funded 2026-09-09, position live
+  (see above). The private key stays in operator-local scratch storage and is never committed.
+- Historical funding note (resolved): the official faucet, QuickNode, and Chainstack all require
+  a mainnet balance (~0.002 BNB), a login, or an API key, so a fresh empty wallet is silently
+  rejected. (Ultimately resolved by a teammate handoff with 0.0471 tBNB.)
+- All "once funded" steps from 2026-09-06 were executed on 2026-09-09 (position created, default
+  watch address baked, live signal verified on `GET /agents/hf-watch/signal`).
 
 
 ## Why
