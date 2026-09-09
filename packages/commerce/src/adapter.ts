@@ -103,6 +103,9 @@ export async function createJob(
       onCreated: options.onCreated,
     });
     commerceLog(`hire:create:txHash ${result.createTxHash ?? ""}`);
+    commerceLog(`hire:budget:txHash ${result.budgetTxHash ?? ""}`);
+    commerceLog(`hire:register:txHash ${result.registerTxHash ?? ""}`);
+    commerceLog(`hire:approve:txHash ${result.approveTxHash ?? ""}`);
     commerceLog(`hire:fund:txHash ${result.txHash}`);
     const onChain = await waitForFundedStatus(result.jobId, options.clients.publicClient, {
       contractAddress: options.contractAddress,
@@ -129,7 +132,7 @@ export async function getJob(
   options?: GetJobOptions,
 ): Promise<JobView | undefined> {
   const chain = resolveCommerceChain(options?.chain);
-  commerceLog(`hire:chain ${chain}`);
+  commerceLog(`hire:local ${chain}`);
   if (!isLiveCommerceChain(chain)) {
     return getMockJob(jobId);
   }

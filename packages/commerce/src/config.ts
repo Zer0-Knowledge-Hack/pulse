@@ -19,6 +19,22 @@ export const COMMERCE_CONTRACTS = {
   56: "0xea4daa3100a767e86fded867729ae7446476eba6",
 } as const satisfies Record<number, Address>;
 
+/**
+ * EvaluatorRouter — canonical ERC-8183 evaluator and hook.
+ * `createJob` reverts `HookRequired()` (0x55c45de1) if hook is address(0)
+ * and `RouterNotEvaluator()` if the evaluator is not this router.
+ */
+export const EVALUATOR_ROUTERS = {
+  97: "0xd7d36d66d2f1b608a0f943f722d27e3744f66f25",
+  56: "0x51895229e12f9876011789b04f8698af06ccd6da",
+} as const satisfies Record<number, Address>;
+
+/** OptimisticPolicy bound by `EvaluatorRouter.registerJob` before `fund`. */
+export const OPTIMISTIC_POLICIES = {
+  97: "0xd6a4217588f6b1f5657a92a3e94e6422ad771cea",
+  56: "0x9c01845705b3078aa2e8cff7520a6376fd766de5",
+} as const satisfies Record<number, Address>;
+
 /** `$U`, the ERC-8183 payment token. 18 decimals, not 6. */
 export const PAYMENT_TOKENS = {
   97: "0xc70B8741B8B07A6d61E54fd4B20f22Fa648E5565",
@@ -28,10 +44,10 @@ export const PAYMENT_TOKENS = {
 /** `MAX_EXPIRY_DURATION()` read from chain 97. The contract rejects more. */
 export const MAX_EXPIRY_SECONDS = 31_536_000n;
 
-/** How long a hired job stays open before it can expire. */
-export const DEFAULT_EXPIRY_SECONDS = 24n * 60n * 60n;
+/** How long a hired job stays open. SDK: pick ~30 days so submit stays inside the dispute window. */
+export const DEFAULT_EXPIRY_SECONDS = 30n * 24n * 60n * 60n;
 
-/** Sentinel for `hook`, matching the SDK's own default. */
+/** Zero address. Never pass this as `hook` — the contract reverts `HookRequired()`. */
 export const ZERO_ADDRESS =
   "0x0000000000000000000000000000000000000000" as const satisfies Address;
 
@@ -182,6 +198,20 @@ export const ERC20_ABI = [
   },
 ] as const;
 
+/** `EvaluatorRouter.registerJob(jobId, policy)` — client, before `fund`. */
+export const EVALUATOR_ROUTER_ABI = [
+  {
+    inputs: [
+      { internalType: "uint256", name: "jobId", type: "uint256" },
+      { internalType: "address", name: "policy", type: "address" },
+    ],
+    name: "registerJob",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+] as const;
+
 export const HIRE_USER_ERRORS = {
   cancelled: "You cancelled the operation.",
   funds: "You don’t have enough $U to fund this job.",
@@ -193,6 +223,10 @@ export const HIRE_USER_ERRORS = {
   approve: "Approve $U spending so the escrow can pull the budget.",
   rejected: "This job was rejected on-chain. Your $U was not taken.",
   expired: "This job expired before it was funded.",
+  hook: "This hire needs the EvaluatorRouter as evaluator and hook.",
+  policy: "Register the job policy before funding.",
+  expiry: "This job expiry is outside what the contract allows.",
+  budget: "The funded amount must match the job budget.",
   reverted: "We couldn’t complete the hire. Try again.",
   rpc: "We couldn’t reach the network. Try again.",
   timeout: "This is taking longer than expected. We’re checking it.",
@@ -243,6 +277,26 @@ export function getPaymentToken(override?: string, chainId = 97): Address {
     throw new Error(HIRE_USER_ERRORS.unavailable);
   }
   return raw as Address;
+}
+
+export function getEvaluatorRouter(chainId = 97): Address {
+  const address = EVALUATOR_ROUTERS[chainId as keyof typeof EVALUATOR_ROUTERS];
+  if (!address) {
+    commerceError("evaluator router unavailable");
+    throw new Error(HIRE_USER_ERRORS.unavailable);
+  }
+  commerceLog(`hire:evaluator ${address}`);
+  return address;
+}
+
+export function getOptimisticPolicy(chainId = 97): Address {
+  const address = OPTIMISTIC_POLICIES[chainId as keyof typeof OPTIMISTIC_POLICIES];
+  if (!address) {
+    commerceError("policy unavailable");
+    throw new Error(HIRE_USER_ERRORS.unavailable);
+  }
+  commerceLog(`hire:policy ${address}`);
+  return address;
 }
 
 /** Job expiry, clamped to what the contract accepts. */
