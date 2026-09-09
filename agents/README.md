@@ -34,15 +34,23 @@ workspace and are gitignored, so only the machine that created them can sign.
 | `yieldrouter` | `0xe1D07be03DDE2C292f842AdE4f34782FDf9176c5` |
 | `gridrunner` | `0x78f800FBA857Ae0a33eEa55f62a68ddA20b27185` |
 
-## Next Steps for Workstream A
+## Status (2026-09-09)
 
-1. Deploy each agent so it answers on a public host. Registration records that
-   host on-chain, so it has to exist first.
-2. Register each agent under ERC-8004 on chain 97. Runbook and script:
-   [`REGISTRATION.md`](./REGISTRATION.md).
-3. Hand the token ids and endpoints to Catalog through
-   [`LISTING-HANDOFF.md`](./LISTING-HANDOFF.md). Workstream A does not edit
-   `packages/indexer/fixtures/featured.json`; Catalog owns that file.
+Deploy and ERC-8004 registration on BSC testnet are **done** for all four agents
+(PRs #20 and #22). Token ids, wallets, and Worker endpoints live in
+[`LISTING-HANDOFF.md`](./LISTING-HANDOFF.md).
+
+### Remaining for Catalog (not A)
+
+1. Consume the handoff into `packages/indexer/fixtures/featured.json`
+   ([issue #26](https://github.com/Zer0-Knowledge-Hack/pulse/issues/26)).
+2. Probe each A2A/MCP URL before setting `live: true`.
+3. Leave the four comparison fixture agents (`lp-sentinel`, `band-bot`,
+   `apr-hopper`, `liq-guard`) as Day-0 comparison cards.
+
+Workstream A does not edit `packages/indexer/fixtures/featured.json`; Catalog
+owns that file. Runbook for future re-registers:
+[`REGISTRATION.md`](./REGISTRATION.md).
 
 ## Operator scripts
 
