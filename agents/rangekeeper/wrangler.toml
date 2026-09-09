@@ -1,0 +1,5 @@
+name = "rangekeeper-agent"
+main = "worker.ts"
+compatibility_date = "2026-09-05"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
