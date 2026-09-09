@@ -14,13 +14,15 @@ import { hireIntentSchema, type HireIntent, type JobStatus, type JobView } from 
 import {
   ERC20_ABI,
   ERC8183_ABI,
+  EVALUATOR_ROUTER_ABI,
   getContractAddress,
+  getEvaluatorRouter,
+  getOptimisticPolicy,
   getPaymentToken,
   HIRE_USER_ERRORS,
   ON_CHAIN_STATUS,
   resolveExpiry,
   TESTNET_DEFAULT_AMOUNT_WEI,
-  ZERO_ADDRESS,
 } from "./config";
 import { commerceError, commerceLog } from "./log";
 
@@ -34,6 +36,7 @@ export type RealHireResult = {
   txHash: Hex;
   createTxHash?: Hex;
   budgetTxHash?: Hex;
+  registerTxHash?: Hex;
   approveTxHash?: Hex;
 };
 
@@ -43,6 +46,7 @@ export type JobOnChainStatus = (typeof ON_CHAIN_STATUS)[number];
 export type HirePhase =
   | "creating"
   | "budgeting"
+  | "registering"
   | "approving"
   | "funding"
   | "confirming";
@@ -202,6 +206,31 @@ export function mapHireError(err: unknown): Error {
     commerceError("transaction rejected", err);
     return new Error(HIRE_USER_ERRORS.cancelled);
   }
+  if (lower.includes("0x55c45de1") || lower.includes("hookrequired")) {
+    commerceError("hook required", err);
+    return new Error(HIRE_USER_ERRORS.hook);
+  }
+  if (lower.includes("0xec43ea50") || lower.includes("routernotevaluator")) {
+    commerceError("router not evaluator", err);
+    return new Error(HIRE_USER_ERRORS.hook);
+  }
+  if (lower.includes("0x32d53d69") || lower.includes("policynotset")) {
+    commerceError("policy not set", err);
+    return new Error(HIRE_USER_ERRORS.policy);
+  }
+  if (
+    lower.includes("0xf7a0748c") ||
+    lower.includes("expirytooshort") ||
+    lower.includes("0xb40b2a0e") ||
+    lower.includes("expirytoolong")
+  ) {
+    commerceError("expiry out of range", err);
+    return new Error(HIRE_USER_ERRORS.expiry);
+  }
+  if (lower.includes("0x99b0fc87") || lower.includes("budgetmismatch")) {
+    commerceError("budget mismatch", err);
+    return new Error(HIRE_USER_ERRORS.budget);
+  }
   if (lower.includes("enforcedpause") || lower.includes("pausable")) {
     commerceError("contract paused", err);
     return new Error(HIRE_USER_ERRORS.paused);
@@ -353,9 +382,9 @@ function writeCommerce(
 /**
  * Step 1 of the ERC-8183 lifecycle: open the job.
  *
- * The buyer is registered as the `evaluator`, which is what makes
- * settlement a user action rather than something the marketplace does on
- * their behalf. `hook` is the zero address, matching the SDK default.
+ * Evaluator and hook must both be EvaluatorRouter. A buyer wallet as
+ * evaluator, or address(0) as hook, reverts (`RouterNotEvaluator` /
+ * `HookRequired`).
  */
 export async function createRealJob(
   intent: HireIntent,
@@ -363,7 +392,9 @@ export async function createRealJob(
   options?: RealHireOptions,
 ): Promise<{ jobId: string; txHash: Hex }> {
   const parsed = parseHireIntent(intent);
-  const address = getContractAddress(options?.contractAddress, options?.expectedChainId);
+  const chainId = options?.expectedChainId ?? 97;
+  const address = getContractAddress(options?.contractAddress, chainId);
+  const router = getEvaluatorRouter(chainId);
   const amount = parseBudgetWei(
     resolveTestnetAmountWei(options?.amount ?? parsed.budgetWei, options?.expectedChainId),
   );
@@ -379,11 +410,13 @@ export async function createRealJob(
     options?.onPhase?.("creating");
     commerceLog("hire:create:start");
     commerceLog(`hire:create:agent ${agent} amount=${amount.toString()}`);
+    commerceLog(`hire:create:evaluator ${router}`);
+    commerceLog(`hire:create:hook ${router}`);
     const { txHash, result } = await writeCommerce(
       clients,
       address,
       "createJob",
-      [agent, account, resolveExpiry(), encodeJobDescription(parsed), ZERO_ADDRESS],
+      [agent, router, resolveExpiry(), encodeJobDescription(parsed), router],
       account,
       "create",
     );
@@ -424,6 +457,37 @@ export async function setJobBudget(
     return { txHash };
   } catch (err) {
     commerceError("setBudget failed", err);
+    throw mapHireError(err);
+  }
+}
+
+/**
+ * Bind OptimisticPolicy on EvaluatorRouter. Must run after createJob and
+ * before fund, or the router-as-hook reverts `PolicyNotSet()`.
+ */
+export async function registerJobPolicy(
+  jobId: string,
+  clients: CommerceWriteClients,
+  options?: Pick<RealHireOptions, "expectedChainId" | "onPhase">,
+): Promise<{ txHash: Hex }> {
+  const chainId = options?.expectedChainId ?? 97;
+  const router = getEvaluatorRouter(chainId);
+  const policy = getOptimisticPolicy(chainId);
+  const account = await requireAccount(clients.walletClient);
+  try {
+    options?.onPhase?.("registering");
+    commerceLog(`hire:register:start jobId=${jobId} policy=${policy}`);
+    const { txHash } = await writeSimulatedContract(clients, {
+      address: router,
+      abi: EVALUATOR_ROUTER_ABI,
+      functionName: "registerJob",
+      args: [parseJobId(jobId), policy],
+      account,
+      label: "register",
+    });
+    return { txHash };
+  } catch (err) {
+    commerceError("registerJob failed", err);
     throw mapHireError(err);
   }
 }
@@ -518,7 +582,7 @@ export async function fundRealJob(
   }
 }
 
-/** The full buyer lifecycle: create, budget, approve, fund. */
+/** The full buyer lifecycle: create, budget, register, approve, fund. */
 export async function createAndFundJob(
   intent: HireIntent,
   clients: CommerceWriteClients,
@@ -532,6 +596,7 @@ export async function createAndFundJob(
   const created = await createRealJob(parsed, clients, { ...options, amount });
   options?.onCreated?.(created.jobId);
   const budget = await setJobBudget(created.jobId, amount, clients, options);
+  const registered = await registerJobPolicy(created.jobId, clients, options);
   const approval = await ensureAllowance(amount, clients, options);
   const funded = await fundRealJob(created.jobId, amount, clients, options);
   return {
@@ -539,6 +604,7 @@ export async function createAndFundJob(
     txHash: funded.txHash,
     createTxHash: created.txHash,
     budgetTxHash: budget.txHash,
+    registerTxHash: registered.txHash,
     approveTxHash: approval.txHash,
   };
 }
@@ -605,12 +671,13 @@ export async function waitForFundedStatus(
   throw new Error(HIRE_USER_ERRORS.timeout);
 }
 
-/** Transaction hashes in lifecycle order: create, budget, approve, fund. */
+/** Transaction hashes in lifecycle order: create, budget, register, approve, fund. */
 export function toFundedJobView(intent: HireIntent, result: RealHireResult): JobView {
   const parsed = parseHireIntent(intent);
   const txHashes = [
     result.createTxHash,
     result.budgetTxHash,
+    result.registerTxHash,
     result.approveTxHash,
     result.txHash,
   ].filter((hash): hash is Hex => Boolean(hash));

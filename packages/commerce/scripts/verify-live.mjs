@@ -10,7 +10,15 @@
  * Every call here is read-only. It signs nothing and spends nothing.
  */
 import { createPublicClient, http, encodeFunctionData } from "viem";
-import { COMMERCE_CONTRACTS, PAYMENT_TOKENS, ERC8183_ABI, ERC20_ABI, resolveExpiry, MAX_EXPIRY_SECONDS } from "../src/config.ts";
+import {
+  COMMERCE_CONTRACTS,
+  EVALUATOR_ROUTERS,
+  PAYMENT_TOKENS,
+  ERC8183_ABI,
+  ERC20_ABI,
+  resolveExpiry,
+  MAX_EXPIRY_SECONDS,
+} from "../src/config.ts";
 
 const c = createPublicClient({ transport: http("https://data-seed-prebsc-2-s2.binance.org:8545") });
 const A = COMMERCE_CONTRACTS[97];
@@ -45,7 +53,7 @@ ok("getJob decodes as a tuple with a status field", typeof job === "object" && "
 // eth_call. A missing/mismatched function surfaces as a decode/revert error
 // that is NOT "function does not exist".
 for (const [name, args] of [
-  ["createJob", ["0x1111111111111111111111111111111111111111", "0x2222222222222222222222222222222222222222", resolveExpiry(now), "probe", "0x0000000000000000000000000000000000000000"]],
+  ["createJob", ["0x1111111111111111111111111111111111111111", EVALUATOR_ROUTERS[97], resolveExpiry(now), "probe", EVALUATOR_ROUTERS[97]]],
   ["setBudget", [1n, 1n, "0x"]],
   ["fund", [1n, 1n, "0x"]],
 ]) {
