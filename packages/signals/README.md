@@ -15,7 +15,7 @@ because an RPC is down.
 
 | Agent | Category | Metrics | Source |
 |-------|----------|---------|--------|
-| `hf-watch` | health_factor | `healthFactor`, `liquidationPrice` | **Live** — Venus Core Pool position reader (BSC **testnet** by default, `VENUS_NETWORK` selects), active when `VENUS_WATCH_ADDRESS` is set; fixture otherwise |
+| `hf-watch` | health_factor | `healthFactor`, `liquidationPrice` | **Live (ACTIVE)** — Venus Core Pool BSC testnet position read at request time, default watch wallet `0x22f3e24233B9BDcC65fa855495D99Fe7d2458510` (funded demo position: 0.035 tBNB supplied, 8 $U borrowed); `VENUS_WATCH_ADDRESS` overrides, fixture on any reader failure |
 | `hf-watch` | health_factor | `lastActionAt` | Fixture (agent's last recorded action) |
 | `hf-watch` | health_factor | `protocol` | Constant `"Venus"` |
 | `liq-guard` | health_factor | all | Fixture |
@@ -48,7 +48,7 @@ network (`VENUS_NETWORK`; unset/empty → `testnet`, `mainnet` for a later upgra
   (otherwise `0`).
 - Health factor is capped at 999 (supply-only positions).
 
-Enable it locally:
+Override the watched wallet locally (optional — the demo position is the default):
 
 ```bash
 VENUS_WATCH_ADDRESS=0xyourPositionAddress pnpm --filter @era/api dev

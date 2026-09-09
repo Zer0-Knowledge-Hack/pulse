@@ -4,6 +4,7 @@ import { readVenusPositionHealth } from "./venus";
 
 const CACHE_TTL_MS = 60_000;
 const WATCH_ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
+const DEFAULT_WATCH_ADDRESS = "0x22f3e24233B9BDcC65fa855495D99Fe7d2458510";
 
 type CacheEntry = { at: number; signal: AgentSignal };
 
@@ -15,7 +16,7 @@ function envValue(name: string): string | undefined {
   return env?.[name];
 }
 
-const VENUS_WATCH_ADDRESS = (envValue("VENUS_WATCH_ADDRESS") ?? "").trim();
+const VENUS_WATCH_ADDRESS = (envValue("VENUS_WATCH_ADDRESS") ?? DEFAULT_WATCH_ADDRESS).trim();
 
 async function refresh(agentId: string): Promise<void> {
   if (agentId !== "hf-watch" || !WATCH_ADDRESS_PATTERN.test(VENUS_WATCH_ADDRESS)) {

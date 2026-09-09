@@ -34,9 +34,9 @@ from our marketplace themselves during judging.
 
 | Task | Category | Agent leg | DIY leg | State |
 |------|----------|-----------|---------|-------|
-| Task 1 — health-factor monitoring | health_factor | pending live hfwatch endpoint (A) | dry-run recorded | protocol + DIY recorded 2026-09-06 |
-| Task 2 — _planned_ | _open_ | — | — | outline only |
-| Task 3 — must be trading/equities/security (hard TermiX requirement) | _open_ | — | — | outline only |
+| Task 1 — health-factor monitoring | health_factor | pending marketplace hire against deployed agent (A+C) | measured 2026-09-09 against the live funded position | protocol frozen; DIY leg measured (HF 1.838); live signal serves |
+| Task 2 — yield-APR comparison sweep | yield | planned (`yield-router`) | — | outline only |
+| Task 3 — grid-trading execution record | grid_trading (hard TermiX requirement) | planned (`grid-runner`, already deployed/registered #22) | — | outline only |
 
 Regulation source: BNB Chain Smart Money Era hackathon page, TermiX partner-track section, and
 TermiX's own campaign page (`agent.family/campaigns/bnb-build-the-era`).
