@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Bell, Copy, History, Unplug, Wallet, Zap } from "lucide-react";
 import { EmptyState } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
@@ -39,6 +40,15 @@ export function ActivityList() {
               {item.status ? `${item.status} · ` : ""}
               {formatDateTime(item.createdAt)}
             </p>
+            {item.href?.startsWith("/agents/") ? (
+              <Link
+                to="/agents/$agentId"
+                params={{ agentId: item.href.replace(/^\/agents\//, "").split("?")[0] ?? "" }}
+                className="mt-1 inline-flex text-xs text-accent hover:underline"
+              >
+                Open agent
+              </Link>
+            ) : null}
           </div>
         </li>
       ))}

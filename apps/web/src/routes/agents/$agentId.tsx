@@ -1,72 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getRouteApi, Link } from "@tanstack/react-router";
 import { BarChart3, ChevronRight, CircleCheck, Home, Info, Radio } from "lucide-react";
-import type { AgentListing, AgentSignal } from "@era/domain";
 import { CATEGORY_JOBS, CATEGORY_LABELS } from "@era/domain";
 import { Badge, Button, Card, DetailSkeleton, ErrorState } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import { Lede, PageTitle, SectionTitle } from "@/components/ui/heading";
 import { AgentAvatar } from "@/features/catalog/agent-avatar";
+import { useAgent } from "@/features/catalog/use-agent";
 import { CategorySignal } from "@/features/signals/category-signal";
 import { SignalChart } from "@/features/signals/signal-chart";
 import { HirePanel, HireStickyBar } from "@/features/hire/hire-cta";
-import { getAgent, getSignal } from "@/lib/api";
+import { isLocalAgentEndpoint, isPlaceholderAddress } from "@/features/hire/hire-provider";
 import { chainLabel, formatAddress, formatDate, friendlyLoadError } from "@/lib/format";
 
 const agentRoute = getRouteApi("/agents/$agentId");
 
 export function AgentDetailPage() {
   const { agentId } = agentRoute.useParams();
-  const [agent, setAgent] = useState<AgentListing | null>(null);
-  const [signal, setSignal] = useState<AgentSignal | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  const [signalStatus, setSignalStatus] = useState<"loading" | "ready" | "empty">("loading");
-  const [signalRefreshing, setSignalRefreshing] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setAgent(null);
-    setSignal(null);
-    setError(null);
-    setSignalStatus("loading");
-
-    getAgent(agentId)
-      .then(async ({ agent: row }) => {
-        if (cancelled) return;
-        setAgent(row);
-        try {
-          const { signal: value } = await getSignal(agentId);
-          if (cancelled) return;
-          setSignal(value);
-          setSignalStatus("ready");
-        } catch {
-          if (cancelled) return;
-          setSignal(null);
-          setSignalStatus("empty");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setError("load");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [agentId, attempt]);
-
-  function reloadSignal() {
-    setSignalRefreshing(true);
-    getSignal(agentId)
-      .then(({ signal: value }) => {
-        setSignal(value);
-        setSignalStatus("ready");
-      })
-      .catch(() => {
-        setSignal(null);
-        setSignalStatus("empty");
-      })
-      .finally(() => setSignalRefreshing(false));
-  }
+  const {
+    agent,
+    signal,
+    loading,
+    notFound,
+    error,
+    signalStatus,
+    signalRefreshing,
+    reload,
+    reloadSignal,
+  } = useAgent(agentId);
 
   useEffect(() => {
     if (!agent) return;
@@ -77,23 +38,25 @@ export function AgentDetailPage() {
   if (error) {
     return (
       <ErrorState
-        title="This agent could not be loaded"
+        title={notFound ? "This agent was not found" : "This agent could not be loaded"}
         action={
           <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={() => setAttempt((n) => n + 1)}>
-              Retry
-            </Button>
+            {notFound ? null : (
+              <Button variant="ghost" onClick={() => void reload()}>
+                Retry
+              </Button>
+            )}
             <Link to="/">
               <Button variant="ghost">Back to the marketplace</Button>
             </Link>
           </div>
         }
       >
-        <p>{friendlyLoadError()}</p>
+        <p>{notFound ? "It is not in the catalog. Start from the marketplace." : friendlyLoadError(error)}</p>
       </ErrorState>
     );
   }
-  if (!agent) {
+  if (loading || !agent) {
     return <DetailSkeleton />;
   }
 
@@ -138,19 +101,19 @@ export function AgentDetailPage() {
             <p className="lede">{CATEGORY_JOBS[agent.category]}</p>
           </Card>
 
-            <Card className="space-y-3 p-4">
-              <SectionTitle className="flex items-center gap-2">
-                <Icon icon={BarChart3} className="text-accent" />
-                Live signal
-              </SectionTitle>
-              {signalStatus === "ready" && signal ? <CategorySignal signal={signal} /> : null}
-              <SignalChart
-                signal={signal}
-                loading={signalStatus === "loading"}
-                refreshing={signalRefreshing}
-                onRefresh={reloadSignal}
-              />
-            </Card>
+          <Card className="space-y-3 p-4">
+            <SectionTitle className="flex items-center gap-2">
+              <Icon icon={BarChart3} className="text-accent" />
+              Live signal
+            </SectionTitle>
+            {signalStatus === "ready" && signal ? <CategorySignal signal={signal} /> : null}
+            <SignalChart
+              signal={signal}
+              loading={signalStatus === "loading"}
+              refreshing={signalRefreshing}
+              onRefresh={reloadSignal}
+            />
+          </Card>
 
           <Card className="space-y-1 p-0 sm:p-0">
             <SectionTitle className="flex items-center gap-2 px-4 pt-3">
@@ -158,12 +121,16 @@ export function AgentDetailPage() {
               Agent details
             </SectionTitle>
             <dl className="divide-y divide-line">
-              <Fact label="A2A" value={agent.endpoints.a2a ? "Available" : "Not listed"} />
-              <Fact label="MCP" value={agent.endpoints.mcp ? "Available" : "Not listed"} />
+              <Fact label="A2A" value={endpointLabel(agent.endpoints.a2a)} mono={isPublicEndpoint(agent.endpoints.a2a)} />
+              <Fact label="MCP" value={endpointLabel(agent.endpoints.mcp)} mono={isPublicEndpoint(agent.endpoints.mcp)} />
               <Fact label="Payment" value={agent.commerce.x402 ? "x402 + ERC-8183" : "ERC-8183"} />
               <Fact label="Network" value={chainLabel(agent.chainId)} />
               <Fact label="Owner" value={formatAddress(agent.owner)} mono />
-              <Fact label="Provider" value={formatAddress(agent.commerce.erc8183Provider)} mono />
+              <Fact
+                label="Provider"
+                value={providerLabel(agent.commerce.erc8183Provider)}
+                mono={Boolean(agent.commerce.erc8183Provider && !isPlaceholderAddress(agent.commerce.erc8183Provider))}
+              />
               <Fact label="Token" value={agent.erc8004TokenId} mono />
               <Fact label="Listed" value={formatDate(agent.createdAt)} />
             </dl>
@@ -174,6 +141,21 @@ export function AgentDetailPage() {
       <HireStickyBar agent={agent} visible />
     </div>
   );
+}
+
+function endpointLabel(url: string | null | undefined): string {
+  if (!url) return "Not configured";
+  if (isLocalAgentEndpoint(url)) return "Unavailable";
+  return url;
+}
+
+function isPublicEndpoint(url: string | null | undefined): boolean {
+  return Boolean(url) && !isLocalAgentEndpoint(url);
+}
+
+function providerLabel(value: string | null | undefined): string {
+  if (!value || isPlaceholderAddress(value)) return "Not configured";
+  return formatAddress(value);
 }
 
 function Fact({

@@ -73,6 +73,7 @@ export function HomePage() {
           status={catalog.status}
           onRetry={catalog.retry}
           initialSearch={q ?? ""}
+          error={catalog.error}
         />
       </section>
     </div>

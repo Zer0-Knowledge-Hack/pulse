@@ -7,7 +7,7 @@ import { targetChain } from "@/providers/network";
 import "@rainbow-me/rainbowkit/styles.css";
 
 const projectId = import.meta.env.VITE_WC_PROJECT_ID || "era-marketplace-dev";
-const initialChain = targetChain() ?? bscTestnet;
+const initialChain = targetChain();
 
 const wagmiConfig = getDefaultConfig({
   appName: "pulse",

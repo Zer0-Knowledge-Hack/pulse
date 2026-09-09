@@ -32,12 +32,14 @@ export function Marketplace({
   status,
   onRetry,
   initialSearch = "",
+  error,
 }: {
   agents: AgentListing[];
   signals: Record<string, AgentSignal>;
   status: Status;
   onRetry: () => void;
   initialSearch?: string;
+  error?: string | null;
 }) {
   const [query, setQuery] = useState<CatalogQuery>({
     ...DEFAULT_CATALOG_QUERY,
@@ -100,7 +102,7 @@ export function Marketplace({
           </Button>
         }
       >
-        <p>{friendlyLoadError()}</p>
+        <p>{friendlyLoadError(error)}</p>
       </ErrorState>
     );
   }

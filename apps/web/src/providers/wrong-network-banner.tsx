@@ -15,7 +15,7 @@ export function WrongNetworkBanner() {
     <div className="border-b border-danger bg-ink-2">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="text-sm">
-          Wrong network. Switch to {target.name} to hire on this demo.
+          Wrong network. Switch to BNB Smart Chain Testnet.
         </p>
         <div className="flex flex-col items-start gap-2 sm:items-end">
           <Button

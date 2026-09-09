@@ -43,6 +43,7 @@ function BrowseCategory({ category }: { category: Category }) {
         status={catalog.status}
         onRetry={catalog.retry}
         initialSearch={q ?? ""}
+        error={catalog.error}
       />
       {catalog.status === "ready" && catalog.agents.length === 0 ? (
         <div className="flex justify-start">
