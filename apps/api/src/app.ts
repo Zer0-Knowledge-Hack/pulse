@@ -7,7 +7,7 @@ import {
   listFeaturedAgents,
   toListing as listingFromFeatured,
 } from "@era/indexer";
-import { createMockJob, getMockJob, revokeMockSession } from "@era/commerce";
+import { createMockJob, getMockJob, revokeMockSession } from "@era/commerce/mock";
 import { getAgentSignal } from "@era/signals";
 
 export type ApiEnv = {
