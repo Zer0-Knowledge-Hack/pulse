@@ -15,7 +15,8 @@
     "@era/indexer": "workspace:*",
     "@era/signals": "workspace:*",
     "@hono/node-server": "^1.19.1",
-    "hono": "^4.9.7"
+    "hono": "^4.9.7",
+    "viem": "^2.56.3"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
