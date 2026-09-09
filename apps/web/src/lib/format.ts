@@ -60,6 +60,8 @@ export function uToWei(amount: string): string | null {
   return wei.toString();
 }
 
-export function friendlyLoadError(): string {
+export function friendlyLoadError(err?: unknown): string {
+  if (err instanceof Error && err.message.trim()) return err.message;
+  if (typeof err === "string" && err.trim()) return err;
   return "Check your connection and try again. If this keeps happening, the catalog may be offline.";
 }

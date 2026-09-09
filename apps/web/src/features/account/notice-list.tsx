@@ -1,3 +1,5 @@
+import { type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { Bell, CircleAlert, Info, Wallet, TriangleAlert, Zap } from "lucide-react";
 import { Badge, Button, EmptyState } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
@@ -94,9 +96,9 @@ function NoticeRow({ item, onRead }: { item: Notice; onRead: () => void }) {
   return (
     <div>
       {item.href ? (
-        <a href={item.href} onClick={onRead} className="block">
+        <NoticeLink href={item.href} onRead={onRead}>
           {body}
-        </a>
+        </NoticeLink>
       ) : (
         body
       )}
@@ -106,5 +108,38 @@ function NoticeRow({ item, onRead }: { item: Notice; onRead: () => void }) {
         </Button>
       ) : null}
     </div>
+  );
+}
+
+function NoticeLink({
+  href,
+  onRead,
+  children,
+}: {
+  href: string;
+  onRead: () => void;
+  children: ReactNode;
+}) {
+  const profile = href.startsWith("/profile");
+  if (profile) {
+    const tab = new URLSearchParams(href.split("?")[1] ?? "").get("tab") ?? "overview";
+    return (
+      <Link to="/profile" search={{ tab }} onClick={onRead} className="block">
+        {children}
+      </Link>
+    );
+  }
+  const agent = href.match(/^\/agents\/([^/?#]+)/);
+  if (agent?.[1]) {
+    return (
+      <Link to="/agents/$agentId" params={{ agentId: agent[1] }} onClick={onRead} className="block">
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} onClick={onRead} className="block">
+      {children}
+    </a>
   );
 }
