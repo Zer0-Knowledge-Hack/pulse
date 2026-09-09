@@ -3,18 +3,18 @@
     {
       "id": "range-keeper",
       "chainId": 97,
-      "erc8004TokenId": "80041",
+      "erc8004TokenId": "2300",
       "category": "rebalancing",
       "name": "Range Keeper",
       "description": "Keeps Pancake V3 BNB/USDT liquidity in range and resets when price walks the band.",
-      "owner": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
+      "owner": "0xCC2abE29F43EAb530a6b5D93E3C41bc0E7622b47",
       "endpoints": {
-        "a2a": "https://agents.local/range-keeper/a2a",
-        "mcp": "https://agents.local/range-keeper/mcp"
+        "a2a": "https://rangekeeper-agent.moisescisnerosdl.workers.dev/.well-known/agent-card.json",
+        "mcp": "https://rangekeeper-agent.moisescisnerosdl.workers.dev/mcp"
       },
       "commerce": {
-        "erc8183Provider": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
-        "x402": false
+        "erc8183Provider": "0xCC2abE29F43EAb530a6b5D93E3C41bc0E7622b47",
+        "x402": true
       },
       "featured": true,
       "live": true,
@@ -57,18 +57,18 @@
     {
       "id": "grid-runner",
       "chainId": 97,
-      "erc8004TokenId": "80043",
+      "erc8004TokenId": "2302",
       "category": "grid_trading",
       "name": "Grid Runner",
       "description": "Places a 12-level grid on BNB/USDT and reports fill rate plus realized PnL for the window.",
-      "owner": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
+      "owner": "0x78f800FBA857Ae0a33eEa55f62a68ddA20b27185",
       "endpoints": {
-        "a2a": "https://agents.local/grid-runner/a2a",
-        "mcp": "https://agents.local/grid-runner/mcp"
+        "a2a": "https://gridrunner-agent.moisescisnerosdl.workers.dev/.well-known/agent-card.json",
+        "mcp": "https://gridrunner-agent.moisescisnerosdl.workers.dev/mcp"
       },
       "commerce": {
-        "erc8183Provider": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
-        "x402": false
+        "erc8183Provider": "0x78f800FBA857Ae0a33eEa55f62a68ddA20b27185",
+        "x402": true
       },
       "featured": true,
       "live": true,
@@ -113,18 +113,18 @@
     {
       "id": "yield-router",
       "chainId": 97,
-      "erc8004TokenId": "80045",
+      "erc8004TokenId": "2301",
       "category": "yield",
       "name": "Yield Router",
       "description": "Routes idle $U across Lista, Venus, and Cake staking. Publishes venue, net APR, last hop.",
-      "owner": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
+      "owner": "0xe1D07be03DDE2C292f842AdE4f34782FDf9176c5",
       "endpoints": {
-        "a2a": "https://agents.local/yield-router/a2a",
-        "mcp": "https://agents.local/yield-router/mcp"
+        "a2a": "https://yieldrouter-agent.moisescisnerosdl.workers.dev/.well-known/agent-card.json",
+        "mcp": "https://yieldrouter-agent.moisescisnerosdl.workers.dev/mcp"
       },
       "commerce": {
-        "erc8183Provider": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
-        "x402": false
+        "erc8183Provider": "0xe1D07be03DDE2C292f842AdE4f34782FDf9176c5",
+        "x402": true
       },
       "featured": true,
       "live": true,
@@ -167,18 +167,18 @@
     {
       "id": "hf-watch",
       "chainId": 97,
-      "erc8004TokenId": "80047",
+      "erc8004TokenId": "2292",
       "category": "health_factor",
       "name": "HF Watch",
       "description": "Tracks Venus BNB collateral health factor and recommends repay before the cliff.",
-      "owner": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
+      "owner": "0x6d07BBc31ea6A9d05B323123470Ae2a7955FfCad",
       "endpoints": {
-        "a2a": "https://agents.local/hf-watch/a2a",
-        "mcp": "https://agents.local/hf-watch/mcp"
+        "a2a": "https://hfwatch-agent.moisescisnerosdl.workers.dev/.well-known/agent-card.json",
+        "mcp": "https://hfwatch-agent.moisescisnerosdl.workers.dev/mcp"
       },
       "commerce": {
-        "erc8183Provider": "0x638592bfdd792AE59A4B5892e971e1A79F8F517d",
-        "x402": false
+        "erc8183Provider": "0x6d07BBc31ea6A9d05B323123470Ae2a7955FfCad",
+        "x402": true
       },
       "featured": true,
       "live": true,
