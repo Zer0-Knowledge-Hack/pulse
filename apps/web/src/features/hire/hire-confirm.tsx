@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { CATEGORY_LABELS, type AgentListing } from "@era/domain";
 import { Button, Dialog } from "@/components/ui";
 import { formatAddress, weiToU } from "@/lib/format";
@@ -35,6 +36,17 @@ export function HireConfirmDialog({
   canPay: boolean;
   blockedReason?: string;
 }) {
+  const payLock = useRef(false);
+  useEffect(() => {
+    if (open && !busy) payLock.current = false;
+  }, [open, busy]);
+
+  function confirm() {
+    if (payLock.current || busy || !canPay) return;
+    payLock.current = true;
+    onConfirm();
+  }
+
   return (
     <Dialog
       open={open}
@@ -47,7 +59,7 @@ export function HireConfirmDialog({
           <Button variant="ghost" className="flex-1" onClick={onClose} disabled={busy}>
             Cancel
           </Button>
-          <Button className="flex-1" loading={busy} disabled={!canPay || busy} onClick={onConfirm}>
+          <Button className="flex-1" loading={busy} disabled={!canPay || busy} onClick={confirm}>
             {busy ? "Processing…" : "Confirm and pay"}
           </Button>
         </div>

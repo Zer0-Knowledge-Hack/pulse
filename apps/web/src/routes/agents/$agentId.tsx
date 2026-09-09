@@ -10,6 +10,7 @@ import { useAgent } from "@/features/catalog/use-agent";
 import { CategorySignal } from "@/features/signals/category-signal";
 import { SignalChart } from "@/features/signals/signal-chart";
 import { HirePanel, HireStickyBar } from "@/features/hire/hire-cta";
+import { isLocalAgentEndpoint, isPlaceholderAddress } from "@/features/hire/hire-provider";
 import { chainLabel, formatAddress, formatDate, friendlyLoadError } from "@/lib/format";
 
 const agentRoute = getRouteApi("/agents/$agentId");
@@ -120,12 +121,16 @@ export function AgentDetailPage() {
               Agent details
             </SectionTitle>
             <dl className="divide-y divide-line">
-              <Fact label="A2A" value={agent.endpoints.a2a ?? "Not listed"} mono={Boolean(agent.endpoints.a2a)} />
-              <Fact label="MCP" value={agent.endpoints.mcp ?? "Not listed"} mono={Boolean(agent.endpoints.mcp)} />
+              <Fact label="A2A" value={endpointLabel(agent.endpoints.a2a)} mono={isPublicEndpoint(agent.endpoints.a2a)} />
+              <Fact label="MCP" value={endpointLabel(agent.endpoints.mcp)} mono={isPublicEndpoint(agent.endpoints.mcp)} />
               <Fact label="Payment" value={agent.commerce.x402 ? "x402 + ERC-8183" : "ERC-8183"} />
               <Fact label="Network" value={chainLabel(agent.chainId)} />
               <Fact label="Owner" value={formatAddress(agent.owner)} mono />
-              <Fact label="Provider" value={formatAddress(agent.commerce.erc8183Provider)} mono />
+              <Fact
+                label="Provider"
+                value={providerLabel(agent.commerce.erc8183Provider)}
+                mono={Boolean(agent.commerce.erc8183Provider && !isPlaceholderAddress(agent.commerce.erc8183Provider))}
+              />
               <Fact label="Token" value={agent.erc8004TokenId} mono />
               <Fact label="Listed" value={formatDate(agent.createdAt)} />
             </dl>
@@ -136,6 +141,21 @@ export function AgentDetailPage() {
       <HireStickyBar agent={agent} visible />
     </div>
   );
+}
+
+function endpointLabel(url: string | null | undefined): string {
+  if (!url) return "Not configured";
+  if (isLocalAgentEndpoint(url)) return "Unavailable";
+  return url;
+}
+
+function isPublicEndpoint(url: string | null | undefined): boolean {
+  return Boolean(url) && !isLocalAgentEndpoint(url);
+}
+
+function providerLabel(value: string | null | undefined): string {
+  if (!value || isPlaceholderAddress(value)) return "Not configured";
+  return formatAddress(value);
 }
 
 function Fact({

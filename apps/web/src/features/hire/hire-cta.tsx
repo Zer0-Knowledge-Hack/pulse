@@ -102,6 +102,24 @@ function isCancelled(err: unknown): boolean {
   return message.includes("cancelled") || message.includes("canceled");
 }
 
+function explainHireError(err: unknown): string {
+  if (isCancelled(err)) {
+    return "Transaction cancelled. You cancelled the transaction in your wallet.";
+  }
+  const message = mapHireError(err).message;
+  const lower = message.toLowerCase();
+  if (lower.includes("tbnb") || lower.includes("for gas")) {
+    return "Insufficient tBNB. You need enough test BNB to pay network fees.";
+  }
+  if (lower.includes("switch to") || lower.includes("wrong network") || lower.includes("bsc testnet")) {
+    return "Wrong network. Switch to BNB Smart Chain Testnet.";
+  }
+  if (lower.includes("reverted") || lower.includes("couldn’t complete") || lower.includes("couldn't complete")) {
+    return "Transaction failed. The blockchain rejected the transaction.";
+  }
+  return message;
+}
+
 export function HireCTA({
   agent,
   className,
@@ -161,7 +179,6 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
     phase === "approving" ||
     phase === "funding" ||
     phase === "confirming";
-  const inFlight = busy || phase === "creating";
   const wrongNetwork = isConnected && chainId !== HIRE_CHAIN_ID;
   const connecting = walletStatus === "connecting" || walletStatus === "reconnecting";
 
@@ -171,13 +188,29 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
   }, [gate, isConnected, wrongNetwork]);
 
   useEffect(() => {
-    if (!address || !publicClient) return;
+    setJob(null);
+    setResumeJobId(null);
+    setSuccessOpen(false);
+    setError(null);
+    if (!address || !publicClient) {
+      setPhase("idle");
+      return;
+    }
     const stored = readHireRecord(agent.id, address);
-    if (!stored?.jobId) return;
+    if (!stored?.jobId) {
+      setPhase("idle");
+      return;
+    }
     let cancelled = false;
     hireLog("restore", { agentId: agent.id, wallet: address, jobId: stored.jobId });
     setPhase("confirming");
     setLastTx(stored.lastTxHash);
+    const failSafe = window.setTimeout(() => {
+      if (cancelled) return;
+      setResumeJobId(stored.jobId ?? null);
+      setPhase("idle");
+      setError("Checking the hire timed out. You can continue the open job without paying again.");
+    }, 20_000);
     getJobStatus(stored.jobId, publicClient, { expectedChainId: HIRE_CHAIN_ID })
       .then((onChain) => {
         if (cancelled) return;
@@ -187,6 +220,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
           onChain.status === "Completed"
         ) {
           const hashes = stored.txHashes.filter((hash) => /^0x[a-fA-F0-9]{64}$/.test(hash));
+          writeHireRecord({ ...stored, status: onChain.status });
           setJob({
             jobId: stored.jobId!,
             agentId: agent.id,
@@ -209,16 +243,20 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
         }
         setResumeJobId(stored.jobId!);
         setTask(stored.task);
-        setBudgetU(weiToU(stored.budgetWei) || budgetU);
+        setBudgetU(weiToU(stored.budgetWei) || "0.001");
         setPhase("idle");
       })
       .catch(() => {
         if (cancelled) return;
         setResumeJobId(stored.jobId ?? null);
         setPhase("idle");
+      })
+      .finally(() => {
+        window.clearTimeout(failSafe);
       });
     return () => {
       cancelled = true;
+      window.clearTimeout(failSafe);
     };
   }, [address, agent.id, publicClient]);
 
@@ -329,6 +367,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
       await assertAffordable(clients, BigInt(amountWei), { chainId: HIRE_CHAIN_ID });
 
       let jobId = record.jobId ?? resumeJobId ?? undefined;
+      let alreadyBudgeted = false;
       if (jobId) {
         const existing = await getJobStatus(jobId, publicClient, {
           expectedChainId: HIRE_CHAIN_ID,
@@ -354,20 +393,25 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
           );
           return;
         }
-        hireLog("resume job", { jobId, status: existing.status });
+        alreadyBudgeted = BigInt(existing.amount) > 0n;
+        hireLog("resume job", { jobId, status: existing.status, alreadyBudgeted });
       } else {
         setPhase("creating");
         const created = await createRealJob(intent, clients, options);
         jobId = created.jobId;
-        record = persist(record, { jobId, hash: created.txHash });
+        record = persist(record, { jobId, hash: created.txHash, status: "Open" });
         setLastTx(created.txHash);
         hireLog("transaction submitted", { step: "createJob", txHash: created.txHash, jobId });
       }
 
-      setPhase("budgeting");
-      const budget = await setJobBudget(jobId, amountWei, clients, options);
-      record = persist(record, { jobId, hash: budget.txHash });
-      hireLog("transaction submitted", { step: "setBudget", txHash: budget.txHash });
+      if (!alreadyBudgeted) {
+        setPhase("budgeting");
+        const budget = await setJobBudget(jobId, amountWei, clients, options);
+        record = persist(record, { jobId, hash: budget.txHash });
+        hireLog("transaction submitted", { step: "setBudget", txHash: budget.txHash });
+      } else {
+        hireLog("skip setBudget", { jobId });
+      }
 
       setPhase("registering");
       const registered = await registerJobPolicy(jobId, clients, options);
@@ -399,8 +443,8 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
       hireLog("transaction confirmed", { status: onChain.status, jobId });
       finishHire({ ...view, status: onChain.status, txHashes: record.txHashes }, record);
     } catch (err) {
-      const mapped = mapHireError(err);
-      hireLog("hire status", { error: mapped.message, jobId: record.jobId });
+      const mapped = explainHireError(err);
+      hireLog("hire status", { error: mapped, jobId: record.jobId });
       if (record.jobId) setResumeJobId(record.jobId);
       setConfirmOpen(false);
       processingRef.current = false;
@@ -410,16 +454,16 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
         toast.push("Transaction cancelled.", "muted");
         return;
       }
-      setError(mapped.message);
+      setError(mapped);
       setPhase("failed");
       setGate("error");
       pushNotice({
         kind: "hire_failed",
         title: "Hire failed",
-        description: mapped.message,
+        description: mapped,
         href: `/agents/${agent.id}`,
       });
-      toast.push(mapped.message, "danger");
+      toast.push(mapped, "danger");
     }
   }
 
@@ -432,7 +476,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
     setSuccessOpen(true);
     setResumeJobId(null);
     processingRef.current = false;
-    persist(record, { jobId: created.jobId });
+    persist(record, { jobId: created.jobId, status: created.status });
     recordHire({
       jobId: created.jobId,
       agentId: agent.id,
@@ -481,7 +525,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
   const explorer = lastTx ? testnetExplorerTx(lastTx) : job?.txHashes.at(-1)
     ? testnetExplorerTx(job.txHashes.at(-1) ?? "")
     : null;
-  const progressOpen = confirmOpen === false && inFlight && phase !== "funded" && phase !== "idle";
+  const progressOpen = confirmOpen === false && busy && phase !== "funded" && phase !== "idle";
 
   return (
     <Card id="hire" className="space-y-3 scroll-mt-20">
@@ -651,7 +695,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
         switching={switching}
       />
       <HireConfirmDialog
-        open={confirmOpen && !inFlight}
+        open={confirmOpen && !busy}
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => void executeHire()}
         agent={agent}
@@ -664,7 +708,7 @@ export function HirePanel({ agent }: { agent: AgentListing }) {
         blockedReason={block}
       />
       <HireProgressDialog
-        open={Boolean(inFlight && phase !== "funded" && (confirmOpen || progressOpen || busy))}
+        open={Boolean(busy && phase !== "funded" && (confirmOpen || progressOpen))}
         agentName={agent.name}
         phaseLabel={phaseCopy(phase)}
         progress={progressFromPhase(phase)}
@@ -687,20 +731,26 @@ export function HireStickyBar({
   agent: AgentListing;
   visible: boolean;
 }) {
+  const { address } = useAccount();
+  const stored = address ? readHireRecord(agent.id, address) : null;
+  const hired =
+    stored?.status === "Funded" ||
+    stored?.status === "Submitted" ||
+    stored?.status === "Completed";
   if (!visible) return null;
   return (
     <div className="fixed inset-x-3 z-30 rounded-2xl border border-line bg-ink/95 p-2.5 shadow-lg backdrop-blur lg:hidden bottom-[calc(3.75rem+env(safe-area-inset-bottom))]">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate font-medium">{agent.name}</p>
-          <p className="text-xs text-muted">Hire on BSC Testnet</p>
+          <p className="text-xs text-muted">{hired ? "Active on BSC Testnet" : "Hire on BSC Testnet"}</p>
         </div>
         <Button
           onClick={() =>
             document.getElementById("hire")?.scrollIntoView({ behavior: "smooth", block: "start" })
           }
         >
-          Hire
+          {hired ? "View agent" : "Hire"}
         </Button>
       </div>
     </div>

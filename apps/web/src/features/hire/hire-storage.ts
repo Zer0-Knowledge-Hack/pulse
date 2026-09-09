@@ -9,6 +9,7 @@ export type StoredHireTx = {
   txHashes: string[];
   lastTxHash?: string;
   createdAt: string;
+  status?: string;
 };
 
 function key(agentId: string, buyer: string): string {
