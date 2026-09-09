@@ -1,10 +1,22 @@
 # Task 1 metrics — Health-factor monitoring
 
-Status as of 2026-09-09: the **watch position is live** (Venus BSC testnet: 0.035 tBNB supplied,
-8 $U borrowed, tx hashes in `openspec/changes/use-venus-testnet-position/proposal.md`), and the
-live health factor is served by `GET /agents/hf-watch/signal`. The DIY leg has been re-run against
-this real position; the **agent leg** still needs the marketplace hire against a deployed agent =
-workstream A's endpoint (stream H's alternative rails documented below).
+Status as of 2026-09-09 (closing run): watch position **live** (HF `1.838`, liq price `$326.44`
+served by `GET /agents/hf-watch/signal`); DIY leg **measured**; agent leg **attempted and
+recorded honestly** — the public agent surface is a discovery stub, so the measured pair cannot
+close until the runtime is reachable (see `agent/output.md`).
+
+## Final pair state
+
+| Dimension | Agent leg (`hf-watch`) | DIY leg (2026-09-09, real position) |
+|-----------|------------------------|-------------------------------------|
+| Task | HF + collateral/borrow + breakdown + verdict | identical |
+| Hire rail | `mock` (job `mock-1`, Funded; no wallet) — testnet ERC-8183 pending a funded buyer | 0 |
+| Time | **not measurable** — `tools/call` answers `result: {}`; `message/send` not routed | ~1.5 s scripted; 20–35 min by hand |
+| Cost | hire price pending runtime availability | 0 tokens; human time |
+| Output quality | pending — no computation on the public endpoint | four sections incl. breakdown + rule verdict (HF 1.838 → `act now`) |
+| Row state | **incomplete by protocol** (capability gap documented in `agent/output.md`) | complete measurements attached |
+
+## Historical dry-run (2026-09-06, pre-funding — kept for the record)
 
 ## Measured DIY leg (2026-09-09, real position, rail `no-agent competitor script`)
 

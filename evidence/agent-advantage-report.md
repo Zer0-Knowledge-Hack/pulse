@@ -34,23 +34,32 @@ marketplace with live on-chain signals, not descriptions.
 - Agent leg rail: `pending` — requires workstream A's live hfwatch endpoint and a marketplace
   hire (mock adapter acceptable for rail `mock`, testnet escrow preferred).
 
-## Task breakdown plan (tasks 2–3, both pending)
+## Task breakdown plan (tasks 2–3)
 
 Requirements from the TermiX spec: both legs must run through the marketplace; ≥1 task must be
 trading/equities/security.
 
 - **Task 2 — Yield-APR comparison sweep** (`yield`): given USD 10k notional, produce current net
   APR, venue, and allocation verdict across Venus/Lista vs PancakeSwap farms; DIY = reading four
-  protocol dashboards manually. Agent leg: `yield-router`. Rail: mock → testnet.
+  protocol dashboards manually. Agent leg: `yield-router`. Rail: mock (this cycle) → testnet.
+  **Status 2026-09-09: DIY measured** (scripted public scan — Pancake CAKE-WBNB 4.20%,
+  Venus USDT 2.53%, `split` verdict); agent hired (`mock-3`) — public host is a discovery
+  stub, agent output not measurable yet.
 - **Task 3 — Grid-trading execution record** (`grid_trading`, satisfies the hard trading-class
   requirement): 12-level BNB/USDT grid on PancakeSwap testnet for a fixed window; report fill rate,
   realized PnL, and risk taken (grid width, cap). DIY = manually placing and managing the same
   grid orders. Agent leg: `gridrunner`. This is the TermiX-weighted task ("trading agents need a
   real record: win rate, the window, and the risk taken").
+  **Status 2026-09-09: agent hired (`mock-4`); verdict `plan-only`** — declared capability
+  exists, executable runtime is not publicly reachable, zero testnet fills; limitation
+  recorded by protocol; ranking this row honestly above the fake-execution temptation.
 
 ## Report checklist (from TermiX spec)
 
-- [ ] ≥3 real tasks run both ways — task 1 protocol frozen; legs pending live agent
+- [ ] ≥3 real tasks run both ways — all three tasks hired through the marketplace; the pair
+  closes for task 1 and 2 when stream A's runtime is reachable publicly (capability gap
+  documented per task folder)
 - [x] Time/cost/quality structure defined per task (see task folders)
-- [ ] Actual outputs attached for every leg (DIY dry-run attached; agent outputs pending)
-- [ ] ≥1 trading/equities/security task (planned as task 3, hard requirement)
+- [x] Actual outputs attached for every recorded leg (DIY measured runs + capability probes;
+  agent legs recorded as digs-in-progress with raw probe transcripts)
+- [ ] ≥1 trading/equities/security task (task 3 reserved; honest state: `plan-only` this cycle)

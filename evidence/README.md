@@ -34,9 +34,15 @@ from our marketplace themselves during judging.
 
 | Task | Category | Agent leg | DIY leg | State |
 |------|----------|-----------|---------|-------|
-| Task 1 — health-factor monitoring | health_factor | pending marketplace hire against deployed agent (A+C) | measured 2026-09-09 against the live funded position | protocol frozen; DIY leg measured (HF 1.838); live signal serves |
-| Task 2 — yield-APR comparison sweep | yield | planned (`yield-router`) | — | outline only |
-| Task 3 — grid-trading execution record | grid_trading (hard TermiX requirement) | planned (`grid-runner`, already deployed/registered #22) | — | outline only |
+| Task 1 — health-factor monitoring | health_factor | hired (`mock-1`); agent host is a discovery stub → capability recorded, output not measurable | measured against the live funded position (HF 1.838) | pair blocked by runtime exposure (task-01/agent) |
+| Task 2 — yield-APR comparison sweep | yield | hired (`mock-3`); same stub limitation | **measured** (scripted public scan: Pancake CAKE-WBNB 4.20% / Venus USDT 2.53% + verdict) | pair blocked on runtime exposure |
+| Task 3 — grid-trading execution record | grid_trading (hard TermiX requirement) | hired (`mock-4`); **`plan-only` — no testnet fills placed** | not yet run (manual Pancake grid available to a volunteer) | real-record bar not met this cycle; limitation recorded honestly |
+
+**One capability gap explains tasks 1–3:** the deployed public Workers are discovery
+surfaces (agent card + MCP `initialize`/`tools/list`); `tools/call` answers an empty
+ack and `message/send` is not routed — the executing AgentCore runtime is not publicly
+reachable. Hires, probes, and raw responses are attached per task folder; the honest
+next step for stream A is exposing the runtime (see each `agent/output.md`).
 
 Regulation source: BNB Chain Smart Money Era hackathon page, TermiX partner-track section, and
 TermiX's own campaign page (`agent.family/campaigns/bnb-build-the-era`).
